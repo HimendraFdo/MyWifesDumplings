@@ -28,11 +28,31 @@
 }
 
 @layer base {
+  /* Smooth anchor scrolling — from UX skill: smooth-scroll guideline */
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-brand-cream text-brand-ink;
+  }
+
+  /* Respect prefers-reduced-motion — from UX skill: motion sensitivity guideline */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -49,7 +69,7 @@
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Rough hand-drawn border utility */
@@ -57,5 +77,10 @@
   .border-rough {
     border: 2px solid theme('colors.brand.red');
     border-radius: 2px 6px 3px 5px / 5px 3px 6px 2px;
+  }
+
+  /* Prevents horizontal overflow on mobile */
+  .overflow-x-clip {
+    overflow-x: clip;
   }
 }

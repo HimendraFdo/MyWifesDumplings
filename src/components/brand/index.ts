@@ -5,3 +5,6 @@ export { MenuCard } from "./MenuCard";
 export { PricingCard } from "./PricingCard";
 export { RedDivider } from "./RedDivider";
 export { OrderButton } from "./OrderButton";
+export { PigLogo } from "./PigLogo";
+export { ChiveSprig, SoyBottle, CabbageHead, PigDeco, ChiveCluster } from "./Decorations";
+export { RansomBadge } from "./RansomBadge";

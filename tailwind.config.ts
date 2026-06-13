@@ -57,6 +57,8 @@ const config: Config = {
       fontFamily: {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
+        ransom: ["var(--font-ransom)", "monospace"],
+        "ransom-b": ["var(--font-ransom-b)", "sans-serif"],
       },
       backgroundImage: {
         "paper-texture": "url('/textures/paper.png')",
