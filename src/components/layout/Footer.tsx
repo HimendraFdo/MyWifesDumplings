@@ -4,30 +4,43 @@ interface FooterProps {
   instagramUrl?: string;
 }
 
+const CONTACT_EMAIL = "mywifesdumplingsofficial@gmail.com";
+
 export function Footer({ instagramUrl }: FooterProps) {
   return (
-    <footer className="bg-brand-ink text-brand-cream py-10 mt-20">
-      <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p className="font-display text-xl italic">My Wife&apos;s Dumplings</p>
+    <footer className="bg-brand-ink text-brand-cream mt-20">
+      <div className="max-w-3xl mx-auto px-4 py-14 flex flex-col items-center text-center gap-6">
+        <p className="font-display text-2xl italic">My Wife&apos;s Dumplings</p>
+
         <p className="font-body text-sm text-brand-cream/60">
           Handmade with love. Auckland, NZ.
         </p>
-        <div className="flex gap-4">
+
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-body text-sm">
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="text-brand-cream/70 hover:text-brand-cream transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink"
+          >
+            {CONTACT_EMAIL}
+          </a>
           {instagramUrl && (
             <Link
               href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-body text-sm text-brand-cream/60 hover:text-brand-cream transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink"
+              className="text-brand-cream/70 hover:text-brand-cream transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink"
             >
               Instagram ↗
             </Link>
           )}
         </div>
+
+        <div className="w-full max-w-xs border-t border-brand-cream/10" />
+
+        <p className="font-body text-xs text-brand-cream/40">
+          © {new Date().getFullYear()} My Wife&apos;s Dumplings. All rights reserved.
+        </p>
       </div>
-      <p className="text-center mt-6 font-body text-xs text-brand-cream/30">
-        © {new Date().getFullYear()} My Wife&apos;s Dumplings. All rights reserved.
-      </p>
     </footer>
   );
 }

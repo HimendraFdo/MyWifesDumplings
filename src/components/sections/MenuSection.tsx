@@ -2,7 +2,6 @@ import type { MenuItem } from "@/types";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { MenuCard } from "@/components/brand/MenuCard";
 import { RedDivider } from "@/components/brand/RedDivider";
-import { RansomBadge } from "@/components/brand/RansomBadge";
 import { ChiveSprig, SoyBottle } from "@/components/brand/Decorations";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -45,12 +44,7 @@ export function MenuSection({ items }: MenuSectionProps) {
       </div>
 
       <div className="max-w-5xl mx-auto">
-        {/* Ransom note "meNu" badge — matches the Instagram poster exactly */}
-        <ScrollReveal className="flex justify-center mb-6">
-          <RansomBadge />
-        </ScrollReveal>
-
-        <ScrollReveal delay={100}>
+        <ScrollReveal>
           <SectionHeading subheading="Every dumpling is made fresh, by hand, with love.">
             The Menu
           </SectionHeading>

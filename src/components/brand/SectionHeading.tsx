@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { RansomText } from "./RansomText";
 
 interface SectionHeadingProps {
   children: React.ReactNode;
@@ -17,10 +18,11 @@ export function SectionHeading({
     <div className={cn("space-y-3", align === "center" && "text-center", className)}>
       <h2
         className={cn(
-          "font-display text-4xl md:text-5xl italic text-brand-ink leading-tight"
+          "text-4xl md:text-5xl text-brand-ink leading-tight",
+          typeof children !== "string" && "font-display italic"
         )}
       >
-        {children}
+        {typeof children === "string" ? <RansomText text={children} /> : children}
       </h2>
       {/* Red brushstroke-style underline */}
       <div
