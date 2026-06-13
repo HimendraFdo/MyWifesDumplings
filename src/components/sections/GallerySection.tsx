@@ -3,6 +3,7 @@ import type { GalleryImage } from "@/types";
 import { urlFor } from "@/lib/sanity/image";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { RedDivider } from "@/components/brand/RedDivider";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface GallerySectionProps {
   images: GalleryImage[];
@@ -14,20 +15,23 @@ export function GallerySection({ images }: GallerySectionProps) {
   return (
     <section id="gallery" className="py-16 sm:py-20 px-4 bg-brand-ink/5">
       <div className="max-w-5xl mx-auto">
-        <SectionHeading subheading="Fresh from the kitchen.">
-          Gallery
-        </SectionHeading>
+        <ScrollReveal>
+          <SectionHeading subheading="Fresh from the kitchen.">
+            Gallery
+          </SectionHeading>
+        </ScrollReveal>
 
         <RedDivider className="my-8 sm:my-10" />
 
         {/* CSS columns masonry — degrades gracefully on all screen sizes */}
         <div className="columns-2 md:columns-3 gap-3 sm:gap-4">
-          {images.map((img) => (
-            <div
+          {images.map((img, i) => (
+            <ScrollReveal
               key={img._id}
+              delay={Math.min(i, 6) * 80}
               className="break-inside-avoid overflow-hidden mb-3 sm:mb-4
-                border-2 border-brand-red/20"
-              style={{ borderRadius: "4px 12px 6px 10px / 10px 6px 12px 4px" }}
+                border-2 border-brand-red/20
+                [border-radius:4px_12px_6px_10px/10px_6px_12px_4px]"
             >
               <Image
                 src={urlFor(img.image).width(600).url()}
@@ -42,7 +46,7 @@ export function GallerySection({ images }: GallerySectionProps) {
                   {img.caption}
                 </p>
               )}
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PricingTier } from "@/types";
 import { PriceTag } from "./PriceTag";
@@ -10,7 +13,9 @@ interface PricingCardProps {
 
 export function PricingCard({ tier, className }: PricingCardProps) {
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -6, boxShadow: "0 12px 24px rgba(192, 57, 43, 0.15)" }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
       className={cn(
         "relative p-6 bg-[#FBF4EC]",
         "[border-radius:4px_12px_6px_10px/10px_6px_12px_4px]",
@@ -40,6 +45,6 @@ export function PricingCard({ tier, className }: PricingCardProps) {
           </ul>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

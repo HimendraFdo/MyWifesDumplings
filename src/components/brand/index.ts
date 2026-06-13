@@ -8,3 +8,5 @@ export { OrderButton } from "./OrderButton";
 export { PigLogo } from "./PigLogo";
 export { ChiveSprig, SoyBottle, CabbageHead, PigDeco, ChiveCluster } from "./Decorations";
 export { RansomBadge } from "./RansomBadge";
+export { ScrollProgress } from "./ScrollProgress";
+export { PageTransition } from "./PageTransition";

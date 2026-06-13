@@ -3,12 +3,23 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 import { contactSchema, ContactFormData } from "@/lib/validations";
 import { sendEnquiry } from "@/app/actions/sendEnquiry";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const shakeControls = useAnimationControls();
+
+  // Wobbly shake when the form is submitted with validation errors —
+  // playful, like the rest of the hand-drawn brand.
+  const onInvalid = () => {
+    shakeControls.start({
+      x: [0, -8, 8, -6, 6, -3, 0],
+      transition: { duration: 0.4, ease: "easeInOut" },
+    });
+  };
 
   const {
     register,
@@ -38,8 +49,20 @@ export function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="text-center py-12 space-y-3">
-        <p className="font-display text-3xl italic text-brand-ink">Thank you! 🥟</p>
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.175, 0.885, 0.32, 1.275] }}
+        className="text-center py-12 space-y-3"
+      >
+        <motion.p
+          initial={{ scale: 1.3, rotate: -6 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
+          className="font-display text-3xl italic text-brand-ink"
+        >
+          Thank you! 🥟
+        </motion.p>
         <p className="font-body text-brand-ink/70">We&apos;ll be in touch shortly.</p>
         <button
           onClick={() => setStatus("idle")}
@@ -47,12 +70,16 @@ export function ContactForm() {
         >
           Send another message
         </button>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-lg mx-auto">
+    <motion.form
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
+      animate={shakeControls}
+      className="space-y-5 max-w-lg mx-auto"
+    >
       <div>
         <label htmlFor="name" className={labelClass}>Name *</label>
         <input id="name" {...register("name")} placeholder="Your name" className={inputClass} />
@@ -112,7 +139,14 @@ export function ContactForm() {
       </div>
 
       {status === "error" && (
-        <p className="font-body text-sm text-red-600">{errorMsg}</p>
+        <motion.p
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="font-body text-sm text-red-600"
+        >
+          {errorMsg}
+        </motion.p>
       )}
 
       <button
@@ -128,6 +162,6 @@ export function ContactForm() {
       >
         {status === "loading" ? "Sending…" : "Send Enquiry"}
       </button>
-    </form>
+    </motion.form>
   );
 }

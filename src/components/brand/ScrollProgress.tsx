@@ -1,0 +1,25 @@
+"use client";
+
+import { useScroll, useSpring, motion } from "framer-motion";
+
+/**
+ * A thin red bar fixed to the top of the viewport that fills as the user
+ * scrolls the page — spring-eased so it feels organic rather than mechanical,
+ * matching the handmade brand spirit.
+ */
+export function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  return (
+    <motion.div
+      style={{ scaleX }}
+      aria-hidden
+      className="fixed top-0 left-0 right-0 h-0.5 bg-brand-red origin-left z-[100]"
+    />
+  );
+}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -35,14 +36,25 @@ export function Header({ orderFormUrl = "#" }: HeaderProps) {
         {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-6">
           {NAV_LINKS.map((link) => (
-            <li key={link.href}>
+            <motion.li
+              key={link.href}
+              initial="rest"
+              animate="rest"
+              whileHover="hover"
+            >
               <Link
                 href={link.href}
-                className="font-body text-sm text-brand-ink/70 hover:text-brand-red transition-colors duration-200"
+                className="relative inline-block font-body text-sm text-brand-ink/70 hover:text-brand-red transition-colors duration-200"
               >
                 {link.label}
+                <motion.span
+                  aria-hidden
+                  variants={{ rest: { scaleX: 0 }, hover: { scaleX: 1 } }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-brand-red origin-left"
+                />
               </Link>
-            </li>
+            </motion.li>
           ))}
           <li>
             <OrderButton href={orderFormUrl} size="sm" />
