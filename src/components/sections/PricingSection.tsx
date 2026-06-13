@@ -32,6 +32,7 @@ const FALLBACK_TIERS: PricingTier[] = [
 const FALLBACK_EXTRAS: Extra[] = [
   { _id: "e1", name: "Wife's secret sauce", price: 1 },
   { _id: "e2", name: "Dumpling soup", price: 1 },
+  { _id: "e3", name: "5 Extra Dumplings", price: 6 },
 ];
 
 export function PricingSection({ tiers, extras, orderFormUrl }: PricingSectionProps) {
