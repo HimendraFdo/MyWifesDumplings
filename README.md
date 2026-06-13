@@ -2,7 +2,7 @@
 
 A full-stack business website for a handmade dumpling business in Auckland, NZ.
 
-**Live site:** https://mywifesdumplings.vercel.app
+**Live site:** https://my-wifes-dumplings.vercel.app
 **CMS Studio:** https://mywifesdumplings.sanity.studio
 
 ## Tech Stack
