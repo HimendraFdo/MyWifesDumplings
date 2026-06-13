@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 47% 91%;
+    --foreground: 20 60% 8%;
+    --card: 30 40% 94%;
+    --card-foreground: 20 60% 8%;
+    --popover: 30 40% 94%;
+    --popover-foreground: 20 60% 8%;
+    --primary: 4 64% 46%;
+    --primary-foreground: 30 47% 96%;
+    --secondary: 30 30% 85%;
+    --secondary-foreground: 20 60% 8%;
+    --muted: 30 20% 88%;
+    --muted-foreground: 20 20% 40%;
+    --accent: 30 30% 85%;
+    --accent-foreground: 20 60% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 20% 80%;
+    --input: 30 20% 80%;
+    --ring: 4 64% 46%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-brand-cream text-brand-ink;
+  }
+}
+
+/* Rough hand-drawn border utility */
+@layer utilities {
+  .border-rough {
+    border: 2px solid theme('colors.brand.red');
+    border-radius: 2px 6px 3px 5px / 5px 3px 6px 2px;
+  }
+}
