@@ -1,4 +1,5 @@
 using System.Text;
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,26 @@ using MyWifesDumplings.Api.Payments;
 using MyWifesDumplings.Api.Pricing;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --- Secrets: Azure Key Vault (WP-7) — CONDITIONAL, must never break local dev. ---
+// Added as a configuration source ONLY when a vault URI is configured (config key "KeyVault:Uri"
+// or env "KEYVAULT__URI"). In Azure the App Service's Managed Identity authenticates via
+// DefaultAzureCredential; locally a developer's az/VS credentials are used IF a vault is set.
+// When no vault URI is present the app composes and runs exactly as before, sourcing config from
+// appsettings + user-secrets — so local dev requires no Azure at all.
+//
+// Key Vault secret names use "--" as the section separator, which maps to ":" in config, e.g.
+//   ConnectionStrings--Default        -> ConnectionStrings:Default
+//   Stripe--SecretKey                 -> Stripe:SecretKey
+//   Stripe--WebhookSecret             -> Stripe:WebhookSecret
+//   Resend--ApiKey                    -> Resend:ApiKey
+//   Jwt--SigningKey                   -> Jwt:SigningKey
+//   ApplicationInsights--ConnectionString -> ApplicationInsights:ConnectionString
+var keyVaultUri = builder.Configuration["KeyVault:Uri"];
+if (!string.IsNullOrWhiteSpace(keyVaultUri))
+{
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), new DefaultAzureCredential());
+}
 
 // --- Observability: Application Insights (no-op locally if no connection string) ---
 builder.Services.AddApplicationInsightsTelemetry();
@@ -150,9 +171,22 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// --- Idempotent seed: ensure Customer/Admin roles + one Admin user exist (spec §10 WP-2). ---
+// --- Schema + seed on startup (WP-7 migration-on-deploy strategy). ---
+// Migrations are applied at startup via Database.Migrate() ONLY when a connection string is present.
+// Migrate() is non-destructive: it applies pending migration files (idempotent — already-applied
+// migrations are skipped) and never drops data. With no connection string (local dev with no DB),
+// migration is skipped; the idempotent DbSeeder still runs and stops at its SQL step — the expected
+// local behavior. Do NOT add a connection string here to force it.
 using (var scope = app.Services.CreateScope())
 {
+    var hasConnectionString =
+        !string.IsNullOrWhiteSpace(app.Configuration.GetConnectionString("Default"));
+    if (hasConnectionString)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
+    }
+
     await DbSeeder.SeedAsync(scope.ServiceProvider);
 }
 
