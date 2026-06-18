@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A8BB19BF-EA1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWifesDumplings.Api", "src\MyWifesDumplings.Api\MyWifesDumplings.Api.csproj", "{03875437-3971-48D4-801A-750A8121BCCD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FB826709-D0DA-414B-AD07-FE590720325D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWifesDumplings.Api.Tests", "tests\MyWifesDumplings.Api.Tests\MyWifesDumplings.Api.Tests.csproj", "{43ED1A6E-0882-45F9-A8D9-DE93DE654010}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +24,13 @@ Global
 		{03875437-3971-48D4-801A-750A8121BCCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03875437-3971-48D4-801A-750A8121BCCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03875437-3971-48D4-801A-750A8121BCCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43ED1A6E-0882-45F9-A8D9-DE93DE654010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43ED1A6E-0882-45F9-A8D9-DE93DE654010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43ED1A6E-0882-45F9-A8D9-DE93DE654010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43ED1A6E-0882-45F9-A8D9-DE93DE654010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{03875437-3971-48D4-801A-750A8121BCCD} = {A8BB19BF-EA18-452B-8883-8B860792BEC0}
+		{43ED1A6E-0882-45F9-A8D9-DE93DE654010} = {FB826709-D0DA-414B-AD07-FE590720325D}
 	EndGlobalSection
 EndGlobal

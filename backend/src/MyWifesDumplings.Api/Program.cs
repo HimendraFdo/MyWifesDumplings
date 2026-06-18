@@ -7,6 +7,9 @@ using MyWifesDumplings.Api.Auth;
 using MyWifesDumplings.Api.Data;
 using MyWifesDumplings.Api.Endpoints;
 using MyWifesDumplings.Api.Entities;
+using MyWifesDumplings.Api.Orders;
+using MyWifesDumplings.Api.Payments;
+using MyWifesDumplings.Api.Pricing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +60,41 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// --- Orders core (WP-4): server-side pricing + Stripe PaymentIntent creation. ---
+// Sanity stays the menu source of truth (§1/§12): prices come from a price provider, NOT a SQL table.
+builder.Services.Configure<SanityOptions>(builder.Configuration.GetSection(SanityOptions.SectionName));
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+// Bound StripeOptions resolvable directly (endpoint reads Currency without IOptions ceremony).
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<StripeOptions>>().Value);
+
+var sanityOptions = builder.Configuration.GetSection(SanityOptions.SectionName).Get<SanityOptions>()
+                    ?? new SanityOptions();
+
+if (sanityOptions.IsConfigured)
+{
+    // Production / configured path: real Sanity-backed provider over HttpClient.
+    builder.Services.AddHttpClient<IMenuPriceProvider, SanityMenuPriceProvider>();
+}
+else if (builder.Environment.IsDevelopment())
+{
+    // DEV-ONLY fallback so the app composes and tests run without Sanity creds.
+    // Never selected in production: a non-Development env with unconfigured Sanity fails fast below.
+    builder.Services.AddSingleton<IMenuPriceProvider, StubMenuPriceProvider>();
+}
+else
+{
+    throw new InvalidOperationException(
+        "Sanity is not configured (Sanity:ProjectId / Sanity:Dataset). The dev stub price provider " +
+        "is Development-only and must never be the production default. Supply Sanity config via Key Vault.");
+}
+
+// Stripe PaymentIntent creation (create only — confirmation is the WP-5 webhook).
+builder.Services.AddScoped<IPaymentIntentService, StripePaymentIntentService>();
+
+// Pure pricing/order-building logic (testable without DB/Stripe/network).
+builder.Services.AddScoped<OrderCreationService>();
+
 // --- CORS: locked to the frontend origin(s) (the Vercel domain). ---
 // Configure allowed origins in appsettings ("Cors:AllowedOrigins"). The API is cross-origin
 // from the Next.js frontend, so this must list the production Vercel URL.
@@ -103,6 +141,9 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
 
 // --- Auth endpoints (WP-3): register (Customer) + login (JWT). ---
 app.MapAuthEndpoints();
+
+// --- Orders core (WP-4): POST /api/orders (public; guest + account share one path). ---
+app.MapOrderEndpoints();
 
 // --- Admin probe (WP-3 verification only; replaced by real admin endpoints in WP-6). ---
 app.MapAdminProbeEndpoints();
