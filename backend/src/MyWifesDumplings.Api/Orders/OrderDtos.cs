@@ -14,12 +14,15 @@ public sealed record CartLineRequest(
     [property: Range(1, 1000)] int Quantity);
 
 /// <summary>
-/// Create-order request. Contains ONLY the customer email and the cart lines — NO price/amount/total
-/// anywhere in the payload (spec §8/§12). The total is always computed server-side.
+/// Create-order request. Contains the customer email, the cart lines, and the chosen dumpling
+/// flavour — but NO price/amount/total anywhere in the payload (spec §8/§12). The total is always
+/// computed server-side. <see cref="Flavour"/> is order metadata (it does not affect price), so it
+/// is captured from the request; it is optional on the wire for backwards compatibility.
 /// </summary>
 public sealed record CreateOrderRequest(
     [property: Required, EmailAddress] string CustomerEmail,
-    [property: Required, MinLength(1)] IReadOnlyList<CartLineRequest> Items);
+    [property: Required, MinLength(1)] IReadOnlyList<CartLineRequest> Items,
+    [property: MaxLength(100)] string? Flavour = null);
 
 /// <summary>Response: the new order id + the Stripe client secret for the browser to confirm payment.</summary>
 public sealed record CreateOrderResponse(int OrderId, string ClientSecret);

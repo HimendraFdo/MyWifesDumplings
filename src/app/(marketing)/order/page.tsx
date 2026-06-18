@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPricingTiers, getExtras } from "@/lib/sanity/queries";
+import { getPricingTiers, getExtras, getMenuItems } from "@/lib/sanity/queries";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { OrderClient } from "@/components/order/OrderClient";
 
@@ -11,7 +11,11 @@ export const metadata: Metadata = {
 export default async function OrderPage() {
   // Menu/pricing is read from Sanity (the source of truth, spec §1). The cart only
   // ever sends the Sanity _id of priced docs (tiers/extras) to the API — never prices.
-  const [tiers, extras] = await Promise.all([getPricingTiers(), getExtras()]);
+  const [tiers, extras, menuItems] = await Promise.all([
+    getPricingTiers(),
+    getExtras(),
+    getMenuItems(),
+  ]);
 
   return (
     <div className="px-4 py-16 sm:py-20">
@@ -20,7 +24,7 @@ export default async function OrderPage() {
           Place an Order
         </SectionHeading>
         <div className="mt-12">
-          <OrderClient tiers={tiers} extras={extras} />
+          <OrderClient tiers={tiers} extras={extras} menuItems={menuItems} />
         </div>
       </div>
     </div>

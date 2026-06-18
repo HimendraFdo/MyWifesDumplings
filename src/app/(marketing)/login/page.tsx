@@ -3,11 +3,13 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Lock } from "lucide-react";
 import { api, ApiError } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
 
 function LoginForm() {
   const router = useRouter();
@@ -56,9 +58,8 @@ function LoginForm() {
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           required
           autoComplete="current-password"
           value={password}
@@ -90,10 +91,14 @@ export default function LoginPage() {
         <SectionHeading subheading="Log in to see your order history.">
           Welcome back
         </SectionHeading>
-        <div className="mt-10">
+        <div className="mt-10 rounded-2xl border-2 border-brand-ink/10 bg-brand-cream/60 p-6 shadow-sm sm:p-8">
           <Suspense fallback={null}>
             <LoginForm />
           </Suspense>
+          <p className="mt-6 flex items-center justify-center gap-1.5 font-body text-xs text-brand-ink/50">
+            <Lock className="size-3.5" />
+            Secured with encrypted password storage. We never see your password.
+          </p>
         </div>
       </div>
     </div>

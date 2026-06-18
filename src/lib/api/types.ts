@@ -8,10 +8,12 @@ export interface CartLine {
   quantity: number;
 }
 
-/** Body of POST /api/orders. Only the customer email + price-free cart lines. */
+/** Body of POST /api/orders. Customer email + price-free cart lines + chosen flavour.
+ *  `flavour` is order metadata (it never affects price — see §12). */
 export interface CreateOrderRequest {
   customerEmail: string;
   items: CartLine[];
+  flavour?: string;
 }
 
 /** Response of POST /api/orders. */
@@ -74,4 +76,5 @@ export interface OrderSummary {
   createdAt: string;
   total: number;
   items: OrderLineSummary[];
+  flavour: string | null;
 }

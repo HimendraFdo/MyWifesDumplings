@@ -37,9 +37,14 @@ backend webhook receiving events (e.g. `stripe listen --forward-to <api>/api/web
 an `Admin` user seeded.
 
 1. `npm run dev` with both env vars set. Open `/order`.
-2. Pick a dumpling pack, optionally add extras, enter an email, click **Continue to payment**.
-   - The browser calls `POST /api/orders` with `{ customerEmail, items: [{ menuItemId, quantity }] }`
-     — **no price** in the request (verify in DevTools → Network). It receives `{ orderId, clientSecret }`.
+2. Pick a dumpling pack, choose a **flavour** (one of the 3 menu types — required),
+   optionally add extras, enter an email, click **Continue to payment**.
+   - The browser calls `POST /api/orders` with
+     `{ customerEmail, items: [{ menuItemId, quantity }], flavour }` — **no price** in the
+     request (verify in DevTools → Network). `flavour` is order metadata (it does not affect
+     the server-computed total). It receives `{ orderId, clientSecret }`.
+   - The chosen flavour is stored on the order and shown in `/admin`, "My Orders", and the
+     guest lookup so the kitchen knows the type.
 3. The Stripe Payment Element mounts with the `clientSecret`. Enter test card `4242 4242 4242 4242`,
    any future expiry, any CVC/ZIP. Card data goes **browser → Stripe directly** (spec §5).
 4. Click **Pay**. On confirmation the UI shows a **pending/thank-you** state — it does **not** claim

@@ -16,9 +16,11 @@ export interface CartState {
   tier: PricingTier | null;
   /** extraId -> quantity (>0). */
   extras: Record<string, number>;
+  /** Chosen dumpling type name (one per order). Display + sent as order metadata. */
+  flavour: string | null;
 }
 
-export const emptyCart: CartState = { tier: null, extras: {} };
+export const emptyCart: CartState = { tier: null, extras: {}, flavour: null };
 
 /** Display-only subtotal in dollars. The authoritative total is computed server-side. */
 export function cartSubtotal(cart: CartState, extras: Extra[]): number {
@@ -30,9 +32,9 @@ export function cartSubtotal(cart: CartState, extras: Extra[]): number {
   return total;
 }
 
-/** True when the cart can be submitted (a tier must be chosen). */
+/** True when the cart can be submitted (a tier AND a flavour must be chosen). */
 export function isCartSubmittable(cart: CartState): boolean {
-  return cart.tier !== null;
+  return cart.tier !== null && !!cart.flavour;
 }
 
 /**
@@ -53,10 +55,13 @@ export function toCartLines(cart: CartState): CartLine[] {
   return lines;
 }
 
-/** Compose the full create-order request (price-free, spec §12). */
+/** Compose the full create-order request (price-free, spec §12). The chosen flavour is
+ *  order metadata — it travels alongside the lines but is NOT a priced line item. */
 export function toOrderPayload(
   cart: CartState,
   customerEmail: string,
 ): CreateOrderRequest {
-  return { customerEmail, items: toCartLines(cart) };
+  const payload: CreateOrderRequest = { customerEmail, items: toCartLines(cart) };
+  if (cart.flavour) payload.flavour = cart.flavour;
+  return payload;
 }

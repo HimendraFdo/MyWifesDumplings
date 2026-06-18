@@ -24,6 +24,7 @@ const extras = [sauce, soup];
 const fullCart: CartState = {
   tier,
   extras: { [sauce._id]: 2 },
+  flavour: "Pork n Chives",
 };
 
 // The crux of WP-8 (spec §12): the wire payload must carry ONLY menuItemId + quantity.
@@ -50,11 +51,16 @@ describe("cart payload (spec §12 — no price ever leaves the browser)", () => 
     ]);
   });
 
-  it("full create-order payload contains only customerEmail + price-free items", () => {
+  it("full create-order payload contains only customerEmail + flavour + price-free items", () => {
     const payload = toOrderPayload(fullCart, "guest@example.com");
 
-    expect(Object.keys(payload).sort()).toEqual(["customerEmail", "items"]);
+    expect(Object.keys(payload).sort()).toEqual([
+      "customerEmail",
+      "flavour",
+      "items",
+    ]);
     expect(payload.customerEmail).toBe("guest@example.com");
+    expect(payload.flavour).toBe("Pork n Chives"); // order metadata, not a priced line
     // Stringify the whole payload and assert no price-ish token leaks through.
     const serialized = JSON.stringify(payload).toLowerCase();
     expect(serialized).not.toContain("price");
@@ -64,8 +70,14 @@ describe("cart payload (spec §12 — no price ever leaves the browser)", () => 
   });
 
   it("omits extras with zero quantity", () => {
-    const cart: CartState = { tier, extras: { [sauce._id]: 0 } };
+    const cart: CartState = { tier, extras: { [sauce._id]: 0 }, flavour: "Pork n Chives" };
     expect(toCartLines(cart)).toEqual([{ menuItemId: "tier_60", quantity: 1 }]);
+  });
+
+  it("the flavour is never a priced cart line — it stays out of items[]", () => {
+    const lines = toCartLines(fullCart);
+    // Only the tier + extra ids appear as lines; the flavour name is not a line.
+    expect(lines.map((l) => l.menuItemId)).toEqual(["tier_60", "extra_sauce"]);
   });
 
   it("computes a DISPLAY-only subtotal (server remains authoritative)", () => {

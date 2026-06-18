@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Elements } from "@stripe/react-stripe-js";
-import type { PricingTier, Extra } from "@/types";
+import type { PricingTier, Extra, MenuItem } from "@/types";
 import { api, ApiError } from "@/lib/api/client";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -23,9 +23,11 @@ type Step = "cart" | "payment" | "confirmed";
 export function OrderClient({
   tiers,
   extras,
+  menuItems,
 }: {
   tiers: PricingTier[];
   extras: Extra[];
+  menuItems: MenuItem[];
 }) {
   const { session } = useAuth();
   const [cart, setCart] = useState<CartState>(emptyCart);
@@ -43,6 +45,10 @@ export function OrderClient({
     setCart((c) => ({ ...c, tier }));
   }
 
+  function selectFlavour(name: string) {
+    setCart((c) => ({ ...c, flavour: name }));
+  }
+
   function setExtraQty(extra: Extra, qty: number) {
     setCart((c) => {
       const next = { ...c.extras };
@@ -56,8 +62,12 @@ export function OrderClient({
     e.preventDefault();
     setError(null);
 
-    if (!isCartSubmittable(cart)) {
+    if (!cart.tier) {
       setError("Please choose a dumpling pack to continue.");
+      return;
+    }
+    if (!cart.flavour) {
+      setError("Please choose your dumpling flavour to continue.");
       return;
     }
     if (!stripeReady) {
@@ -194,11 +204,48 @@ export function OrderClient({
         )}
       </section>
 
+      {/* Flavour — one dumpling type per order */}
+      {menuItems.length > 0 && (
+        <section>
+          <h2 className="mb-4 font-display text-2xl text-brand-ink">
+            2. Choose your flavour
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {menuItems.map((item) => {
+              const selected = cart.flavour === item.name;
+              return (
+                <button
+                  type="button"
+                  key={item._id}
+                  onClick={() => selectFlavour(item.name)}
+                  aria-pressed={selected}
+                  className={
+                    "rounded-xl border-2 p-5 text-left transition-all " +
+                    (selected
+                      ? "border-brand-red bg-brand-red/5 ring-2 ring-brand-red/30"
+                      : "border-brand-ink/10 bg-brand-cream hover:border-brand-red/40")
+                  }
+                >
+                  <span className="font-display text-xl text-brand-ink">
+                    {item.name}
+                  </span>
+                  {item.tagline && (
+                    <p className="mt-1 font-body text-sm text-brand-ink/60">
+                      {item.tagline}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Extras */}
       {extras.length > 0 && (
         <section>
           <h2 className="mb-4 font-display text-2xl text-brand-ink">
-            2. Add extras{" "}
+            3. Add extras{" "}
             <span className="font-body text-base text-brand-ink/50">(optional)</span>
           </h2>
           <ul className="space-y-3">
@@ -248,7 +295,7 @@ export function OrderClient({
 
       {/* Email + total */}
       <section className="space-y-4">
-        <h2 className="font-display text-2xl text-brand-ink">3. Your details</h2>
+        <h2 className="font-display text-2xl text-brand-ink">4. Your details</h2>
         {!session && (
           <p className="font-body text-sm text-brand-ink/60">
             Ordering as a guest.{" "}
@@ -271,6 +318,13 @@ export function OrderClient({
           />
         </div>
 
+        {(cart.tier || cart.flavour) && (
+          <p className="font-body text-sm text-brand-ink/60">
+            {cart.tier ? `${cart.tier.quantity} dumplings` : ""}
+            {cart.tier && cart.flavour ? " · " : ""}
+            {cart.flavour ?? ""}
+          </p>
+        )}
         <div className="flex items-center justify-between border-t-2 border-brand-ink/10 pt-4">
           <span className="font-display text-xl text-brand-ink">Total</span>
           <span className="font-display text-2xl text-brand-red">

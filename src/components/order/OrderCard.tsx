@@ -53,6 +53,12 @@ export function OrderCard({
         </div>
       </div>
 
+      {order.flavour && (
+        <p className="mt-3 font-body text-sm text-brand-ink/80">
+          Flavour: <span className="font-semibold">{order.flavour}</span>
+        </p>
+      )}
+
       <ul className="mt-4 divide-y divide-brand-ink/10 border-t border-brand-ink/10">
         {order.items.map((item, i) => (
           <li
