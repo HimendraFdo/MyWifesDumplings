@@ -96,6 +96,11 @@ builder.Services.AddScoped<IPaymentIntentService, StripePaymentIntentService>();
 // Pure pricing/order-building logic (testable without DB/Stripe/network).
 builder.Services.AddScoped<OrderCreationService>();
 
+// --- Order read/admin services (WP-6): list/scope queries + status transitions over AppDbContext. ---
+// Authorization-independent; the endpoints pass the caller identity and apply the role attributes.
+builder.Services.AddScoped<OrderQueryService>();
+builder.Services.AddScoped<OrderAdminService>();
+
 // --- Payment confirmation (WP-5): Stripe webhook + confirmation email (§5/§7/§8). ---
 // The verified webhook is the SINGLE source of truth for payment state; the service updates the
 // order via AppDbContext and is registered scoped to match the DbContext lifetime.
@@ -178,7 +183,8 @@ app.MapOrderEndpoints();
 // --- Stripe webhook (WP-5): POST /api/webhooks/stripe (public, signature-verified; sole payment-state writer). ---
 app.MapWebhookEndpoints();
 
-// --- Admin probe (WP-3 verification only; replaced by real admin endpoints in WP-6). ---
-app.MapAdminProbeEndpoints();
+// --- Order read/status surface (WP-6): admin list + status PATCH, customer "my orders", guest lookup. ---
+// Replaces the temporary WP-3 admin probe (GET /api/admin/ping), which has been removed.
+app.MapOrderQueryEndpoints();
 
 app.Run();
