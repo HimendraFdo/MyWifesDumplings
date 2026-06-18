@@ -171,6 +171,39 @@ public class OrderQueryServiceTests
         Assert.Null(await svc.GetByLookupTokenAsync("   ", CancellationToken.None));
     }
 
+    [Theory]
+    [InlineData("NotStarted", OrderStatus.NotStarted)]
+    [InlineData("ongoing", OrderStatus.Ongoing)]   // case-insensitive
+    [InlineData("COMPLETED", OrderStatus.Completed)]
+    [InlineData("0", OrderStatus.NotStarted)]       // numeric values accepted...
+    [InlineData("1", OrderStatus.Ongoing)]
+    [InlineData("2", OrderStatus.Completed)]
+    public void StatusFilter_AcceptsNames_AndDefinedNumbers(string input, OrderStatus expected)
+    {
+        Assert.True(OrderStatusFilter.TryParse(input, out var filter));
+        Assert.Equal(expected, filter);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void StatusFilter_NullOrBlank_MeansNoFilter(string? input)
+    {
+        Assert.True(OrderStatusFilter.TryParse(input, out var filter));
+        Assert.Null(filter); // no filter => all orders
+    }
+
+    [Theory]
+    [InlineData("99")]      // ...but out-of-range numbers are rejected
+    [InlineData("-1")]
+    [InlineData("Cooking")] // unknown name
+    public void StatusFilter_UnknownNameOrOutOfRangeNumber_IsRejected(string input)
+    {
+        Assert.False(OrderStatusFilter.TryParse(input, out var filter));
+        Assert.Null(filter);
+    }
+
     [Fact]
     public async Task ReadResponses_NeverLeak_GuestLookupToken()
     {

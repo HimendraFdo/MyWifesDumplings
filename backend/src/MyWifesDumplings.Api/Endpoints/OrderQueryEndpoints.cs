@@ -31,7 +31,7 @@ public static class OrderQueryEndpoints
             OrderQueryService orders,
             CancellationToken ct) =>
         {
-            if (!TryParseStatusFilter(status, out var filter))
+            if (!OrderStatusFilter.TryParse(status, out var filter))
             {
                 return Results.BadRequest(new { error = $"Unknown order status '{status}'." });
             }
@@ -101,34 +101,5 @@ public static class OrderQueryEndpoints
         .WithOpenApi();
 
         return app;
-    }
-
-    /// <summary>
-    /// Parses the optional <c>?status=</c> filter. Null/blank => no filter (all orders). A defined enum
-    /// name (case-insensitive) => that status. Anything else => false (the endpoint returns 400).
-    /// Numeric strings are rejected so the filter is restricted to the documented enum names.
-    /// </summary>
-    private static bool TryParseStatusFilter(string? status, out OrderStatus? filter)
-    {
-        filter = null;
-        if (string.IsNullOrWhiteSpace(status))
-        {
-            return true;
-        }
-
-        // Reject numeric input ("1") and only accept the named values (NotStarted/Ongoing/Completed).
-        if (int.TryParse(status, out _))
-        {
-            return false;
-        }
-
-        if (Enum.TryParse<OrderStatus>(status, ignoreCase: true, out var parsed)
-            && Enum.IsDefined(typeof(OrderStatus), parsed))
-        {
-            filter = parsed;
-            return true;
-        }
-
-        return false;
     }
 }
