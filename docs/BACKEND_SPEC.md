@@ -7,6 +7,29 @@
 
 ---
 
+## 0. Git & Branch Workflow (READ FIRST — all agents)
+
+**All agents work on the same branch: `feat/backend-scaffold`.** Do NOT create new branches per
+work package and do NOT commit to `main`.
+
+- **Before starting:** `git checkout feat/backend-scaffold && git pull` to get the latest work from
+  other agents.
+- **Commit small and often** with clear messages, prefixed by the work package, e.g.
+  `feat(WP-2): add Order/OrderItem entities + initial migration`.
+- **Push after each meaningful unit** so other agents (and dependent work packages) see your changes:
+  `git push origin feat/backend-scaffold`.
+- **Pull before you push** to integrate others' commits and resolve conflicts locally.
+- **Never commit secrets** (Stripe keys, real DB connection strings) — see the guardrails in §12.
+- The `backend/.gitignore` already excludes `bin/`, `obj/`, and local secret files — keep it that way.
+- The coordinator merges `feat/backend-scaffold` → `main` (via PR) only once a coherent slice is done
+  and green. Individual agents do not merge to `main`.
+
+> Rationale: the work packages are tightly coupled (shared DbContext, shared data model, shared API
+> project). A single shared branch keeps everyone integrated continuously and avoids a pile of
+> conflicting per-package branches. Sequence work per §11 so dependencies land before dependents.
+
+---
+
 ## 1. Context
 
 **Existing system (do not rebuild):**
