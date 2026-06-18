@@ -255,13 +255,17 @@ NotStarted ──> Ongoing ──> Completed
 
 ## 11. Suggested Delegation Order
 
-1. **WP-1** → then **WP-2**.
-2. In parallel after WP-2: **WP-3 (auth)** and **WP-4 (orders core)**.
-3. **WP-5 (Stripe webhook)** after WP-4.
-4. **WP-6 (admin/status)** after WP-3 + WP-4.
-5. **WP-7 (secrets/deploy)** can start early (WP-1), finalized after WP-5.
-6. **WP-8 (frontend)** once WP-4/5/6 are stable.
-7. **WP-9 (SignalR)** only if the owner wants live updates.
+**Delegate one work package at a time** (see Appendix A). The annotations below note the *minimum*
+dependencies, but the coordinator still dispatches them strictly sequentially:
+
+1. **WP-1** (done) → **WP-2** (data model & migrations).
+2. **WP-3 (auth)** — depends on WP-2.
+3. **WP-4 (orders core)** — depends on WP-2. (Could parallel WP-3, but run it after.)
+4. **WP-5 (Stripe webhook)** — after WP-4.
+5. **WP-6 (admin/status)** — after WP-3 + WP-4.
+6. **WP-7 (secrets/deploy)** — finalize after WP-5.
+7. **WP-8 (frontend)** — once WP-4/5/6 are stable.
+8. **WP-9 (SignalR)** — only if the owner wants live updates.
 
 ---
 
@@ -297,15 +301,18 @@ out on branch `feat/backend-scaffold`.
 > `feat/backend-scaffold`. No per-package branches, no commits to `main`. Follow §0: every agent runs
 > `git checkout feat/backend-scaffold && git pull` before starting and `git pull` before every push.
 >
-> **How to delegate:**
-> 1. Use §11 (Suggested Delegation Order) to sequence work. Respect the dependency graph in §10 — do
->    not start a package until its dependencies are merged and the build is green.
-> 2. Start by delegating **WP-2 (data model & migrations)**, since WP-3 and WP-4 both depend on it.
-> 3. Once WP-2 lands, dispatch **WP-3 (auth)** and **WP-4 (orders core)** in parallel.
-> 4. For each delegation, give the sub-agent: the WP number, its acceptance criteria from §10, the
+> **How to delegate — ONE WORK PACKAGE AT A TIME (strict):**
+> 1. Delegate **exactly one** work package to **one** sub-agent at a time. Never run two sub-agents
+>    concurrently, even when the dependency graph would allow it. Finish, verify, and integrate the
+>    current package before delegating the next.
+> 2. Use §11 for ordering and respect the dependency graph in §10. The sequence is:
+>    **WP-2 → WP-3 → WP-4 → WP-5 → WP-6 → WP-7 → WP-8 → (WP-9 optional)**. (WP-3 and WP-4 *may*
+>    technically run in parallel, but per this rule you still do them one after the other.)
+> 3. For each delegation, give the sub-agent: the WP number, its acceptance criteria from §10, the
 >    relevant shared rules from §5/§6/§12, and the branch rule.
-> 5. After each sub-agent reports done, verify `dotnet build` is clean and the WP's acceptance criteria
->    are met before unblocking dependents.
+> 4. After the sub-agent reports done: verify `dotnet build` is clean and the WP's acceptance criteria
+>    are met. Only then delegate the next package. If it fails, send it back to the same sub-agent
+>    (or a fresh one) with the failure details before moving on.
 >
 > **Guardrails (enforce on every agent):** §12 — server-side price computation, Stripe webhook
 > signature verification, no secrets in the repo, admin endpoints reject non-admin tokens, OrderItem
