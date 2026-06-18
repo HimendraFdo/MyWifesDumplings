@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyWifesDumplings.Api.Auth;
 using MyWifesDumplings.Api.Data;
+using MyWifesDumplings.Api.Email;
 using MyWifesDumplings.Api.Endpoints;
 using MyWifesDumplings.Api.Entities;
 using MyWifesDumplings.Api.Orders;
@@ -95,6 +96,35 @@ builder.Services.AddScoped<IPaymentIntentService, StripePaymentIntentService>();
 // Pure pricing/order-building logic (testable without DB/Stripe/network).
 builder.Services.AddScoped<OrderCreationService>();
 
+// --- Payment confirmation (WP-5): Stripe webhook + confirmation email (§5/§7/§8). ---
+// The verified webhook is the SINGLE source of truth for payment state; the service updates the
+// order via AppDbContext and is registered scoped to match the DbContext lifetime.
+builder.Services.AddScoped<StripeWebhookService>();
+
+// Confirmation email seam (Resend). Mirrors the Sanity provider pattern above: real Resend service
+// when configured; a Development-only no-op when not; fail fast in any other environment.
+builder.Services.Configure<ResendOptions>(builder.Configuration.GetSection(ResendOptions.SectionName));
+var resendOptions = builder.Configuration.GetSection(ResendOptions.SectionName).Get<ResendOptions>()
+                    ?? new ResendOptions();
+
+if (resendOptions.IsConfigured)
+{
+    // Production / configured path: real Resend-backed service over HttpClient.
+    builder.Services.AddHttpClient<IOrderEmailService, ResendOrderEmailService>();
+}
+else if (builder.Environment.IsDevelopment())
+{
+    // DEV-ONLY fallback so the app composes and the webhook path runs without Resend creds.
+    // Never selected in production: a non-Development env with unconfigured Resend fails fast below.
+    builder.Services.AddSingleton<IOrderEmailService, NoOpOrderEmailService>();
+}
+else
+{
+    throw new InvalidOperationException(
+        "Resend is not configured (Resend:ApiKey). The dev no-op email service is Development-only and " +
+        "must never be the production default. Supply Resend:ApiKey via Key Vault.");
+}
+
 // --- CORS: locked to the frontend origin(s) (the Vercel domain). ---
 // Configure allowed origins in appsettings ("Cors:AllowedOrigins"). The API is cross-origin
 // from the Next.js frontend, so this must list the production Vercel URL.
@@ -144,6 +174,9 @@ app.MapAuthEndpoints();
 
 // --- Orders core (WP-4): POST /api/orders (public; guest + account share one path). ---
 app.MapOrderEndpoints();
+
+// --- Stripe webhook (WP-5): POST /api/webhooks/stripe (public, signature-verified; sole payment-state writer). ---
+app.MapWebhookEndpoints();
 
 // --- Admin probe (WP-3 verification only; replaced by real admin endpoints in WP-6). ---
 app.MapAdminProbeEndpoints();
