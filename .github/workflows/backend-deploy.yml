@@ -64,6 +64,9 @@ jobs:
   deploy:
     name: Deploy to Azure App Service
     needs: build-test
+    # Deployment is opt-in so CI remains green before Azure OIDC and App Service settings exist.
+    # Set the repository variable AZURE_DEPLOY_ENABLED=true after configuring the values below.
+    if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     environment: production
     # OIDC federated credentials: requires id-token write permission. No publish profile, no

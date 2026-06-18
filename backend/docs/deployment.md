@@ -128,6 +128,10 @@ credentials** (no publish profile, no long-lived secret). Configure these in the
 | Name | Purpose |
 |---|---|
 | `AZURE_WEBAPP_NAME` | The App Service name to deploy to |
+| `AZURE_DEPLOY_ENABLED` | Set to `true` only after all Azure OIDC and App Service settings are configured |
+
+Until `AZURE_DEPLOY_ENABLED` is set to `true`, the workflow still builds and tests the backend but
+skips the deployment job.
 
 Set up the federated credential on the app registration so GitHub's OIDC token is trusted, e.g. for
 the `production` environment / the `main` branch:
