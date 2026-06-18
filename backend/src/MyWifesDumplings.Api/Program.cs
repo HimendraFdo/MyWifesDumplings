@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyWifesDumplings.Api.Data;
+using MyWifesDumplings.Api.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,16 @@ builder.Services.AddApplicationInsightsTelemetry();
 // Entities are added in WP-2; this wires the context so the app can connect.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+// --- Identity: users + roles stored in the same Azure SQL DB via AppDbContext. ---
+// JWT issuance and role-based authorization policies are wired in WP-3; WP-2 only needs the
+// Identity stores registered so roles + an admin user can be seeded.
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>();
 
 // --- CORS: locked to the frontend origin(s) (the Vercel domain). ---
 // Configure allowed origins in appsettings ("Cors:AllowedOrigins"). The API is cross-origin
@@ -31,6 +43,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// --- Idempotent seed: ensure Customer/Admin roles + one Admin user exist (spec §10 WP-2). ---
+using (var scope = app.Services.CreateScope())
+{
+    await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
 
 if (app.Environment.IsDevelopment())
 {
