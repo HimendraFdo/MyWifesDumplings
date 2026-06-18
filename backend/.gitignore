@@ -1,0 +1,14 @@
+# .NET build output
+bin/
+obj/
+out/
+
+# User-specific / IDE
+*.user
+.vs/
+.idea/
+
+# Local secrets (use Key Vault / user-secrets, never commit)
+appsettings.*.local.json
+*.Development.local.json
+secrets.json
