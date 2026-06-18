@@ -34,6 +34,11 @@ Swagger UI is available in Development at `/swagger`.
 **Never commit real secrets.** Use `dotnet user-secrets` locally and Azure Key Vault in production
 (see WP-7 in the spec).
 
+## Testing payments locally
+
+To exercise the Stripe payment flow end-to-end (order → webhook → paid/declined) against test
+mode with the Stripe CLI, see [`docs/stripe-webhook-testing.md`](docs/stripe-webhook-testing.md).
+
 ## Next work packages
 
 WP-2 (data model & migrations) → WP-3 (auth) ∥ WP-4 (orders core) → WP-5 (Stripe webhook) →
