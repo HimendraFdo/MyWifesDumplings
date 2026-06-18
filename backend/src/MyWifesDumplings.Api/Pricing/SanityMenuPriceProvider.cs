@@ -33,7 +33,11 @@ public sealed class SanityMenuPriceProvider : IMenuPriceProvider
         }
 
         // GROQ querying a single document by id, projecting just name + price.
-        const string groq = "*[_id == $id][0]{\"name\": coalesce(title, name), \"price\": price}";
+        // A pricingTier has neither title nor name (only quantity), so fall back to a
+        // human-readable label derived from its quantity (e.g. "60 dumplings") — this is
+        // what gets snapshotted onto the OrderItem and shown in order history (spec §6).
+        const string groq =
+            "*[_id == $id][0]{\"name\": coalesce(title, name, string(quantity) + \" dumplings\"), \"price\": price}";
 
         var url =
             $"https://{_options.ProjectId}.api.sanity.io/v{_options.ApiVersion}/data/query/{_options.Dataset}" +

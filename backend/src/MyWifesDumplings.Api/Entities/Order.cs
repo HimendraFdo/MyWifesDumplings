@@ -17,6 +17,13 @@ public class Order
     /// <summary>Always captured — used for the confirmation email and guest lookup.</summary>
     public string CustomerEmail { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The chosen dumpling type for this order (e.g. "Pork n Chives"). Order-level metadata —
+    /// it does NOT affect pricing (pricing is by quantity tier), so it is captured from the
+    /// request like <see cref="CustomerEmail"/> rather than re-priced. Nullable for legacy orders.
+    /// </summary>
+    public string? Flavour { get; set; }
+
     /// <summary>Random token letting a guest view their order via an emailed link.</summary>
     public string GuestLookupToken { get; set; } = string.Empty;
 

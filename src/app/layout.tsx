@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter, Special_Elite, Boogaloo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { AuthProvider } from "@/lib/auth/auth-context";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://my-wifes-dumplings.vercel.app";
@@ -62,7 +63,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} ${specialElite.variable} ${boogaloo.variable}`}
     >
       <body className="font-body antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Analytics />
         <SpeedInsights />
       </body>

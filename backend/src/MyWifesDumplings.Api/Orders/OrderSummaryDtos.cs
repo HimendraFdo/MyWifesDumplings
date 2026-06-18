@@ -29,7 +29,8 @@ public sealed record OrderSummaryResponse(
     DateTime? PaidAt,
     DateTime CreatedAt,
     decimal Total,
-    IReadOnlyList<OrderLineSummary> Items)
+    IReadOnlyList<OrderLineSummary> Items,
+    string? Flavour)
 {
     /// <summary>Projects an <see cref="Order"/> (with its items loaded) into the read model.</summary>
     public static OrderSummaryResponse FromOrder(Order order)
@@ -51,7 +52,8 @@ public sealed record OrderSummaryResponse(
             order.PaidAt,
             order.CreatedAt,
             lines.Sum(l => l.LineTotal),
-            lines);
+            lines,
+            order.Flavour);
     }
 }
 

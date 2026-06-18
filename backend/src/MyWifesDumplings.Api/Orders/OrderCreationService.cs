@@ -51,6 +51,8 @@ public sealed class OrderCreationService
         var order = new Order
         {
             CustomerEmail = request.CustomerEmail,
+            // Chosen dumpling type — order metadata, not priced. Trimmed; null when blank.
+            Flavour = string.IsNullOrWhiteSpace(request.Flavour) ? null : request.Flavour.Trim(),
             // PaidAt stays null — WP-4 creates an UNPAID order. The webhook (WP-5) stamps payment.
             PaidAt = null,
         };
