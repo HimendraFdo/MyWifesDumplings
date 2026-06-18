@@ -7,6 +7,29 @@
 
 ---
 
+## 0. Git & Branch Workflow (READ FIRST — all agents)
+
+**All agents work on the same branch: `feat/backend-scaffold`.** Do NOT create new branches per
+work package and do NOT commit to `main`.
+
+- **Before starting:** `git checkout feat/backend-scaffold && git pull` to get the latest work from
+  other agents.
+- **Commit small and often** with clear messages, prefixed by the work package, e.g.
+  `feat(WP-2): add Order/OrderItem entities + initial migration`.
+- **Push after each meaningful unit** so other agents (and dependent work packages) see your changes:
+  `git push origin feat/backend-scaffold`.
+- **Pull before you push** to integrate others' commits and resolve conflicts locally.
+- **Never commit secrets** (Stripe keys, real DB connection strings) — see the guardrails in §12.
+- The `backend/.gitignore` already excludes `bin/`, `obj/`, and local secret files — keep it that way.
+- The coordinator merges `feat/backend-scaffold` → `main` (via PR) only once a coherent slice is done
+  and green. Individual agents do not merge to `main`.
+
+> Rationale: the work packages are tightly coupled (shared DbContext, shared data model, shared API
+> project). A single shared branch keeps everyone integrated continuously and avoids a pile of
+> conflicting per-package branches. Sequence work per §11 so dependencies land before dependents.
+
+---
+
 ## 1. Context
 
 **Existing system (do not rebuild):**
@@ -252,4 +275,50 @@ NotStarted ──> Ongoing ──> Completed
 - [ ] OrderItem stores price/name snapshots (historical orders survive menu changes).
 - [ ] Sanity remains the menu source of truth; no menu data duplicated into SQL.
 - [ ] CORS restricted to the production Vercel domain.
-```
+
+---
+
+## Appendix A — Coordinator Agent Kickoff Prompt
+
+Paste this to the coordinator agent to start the build. It assumes the agent has this repo checked
+out on branch `feat/backend-scaffold`.
+
+> You are the **coordinator** for the My Wife's Dumplings backend build. Your job is to delegate work
+> to sub-agents and keep them integrated — you do not write feature code yourself.
+>
+> **Start here:** Read `docs/BACKEND_SPEC.md` in full before doing anything. It is the single source of
+> truth for architecture, data model, payment/auth flows, the work packages (WP-1…WP-9), their
+> dependencies, and acceptance criteria. Also read `backend/README.md` for current status.
+>
+> **Current state:** WP-1 (scaffold & infra baseline) is done on branch `feat/backend-scaffold` — the
+> ASP.NET Core 8 API builds clean and `/health` returns `{"status":"ok"}`. Do not redo it.
+>
+> **Branch rule (critical):** All agents — including you — work on the existing branch
+> `feat/backend-scaffold`. No per-package branches, no commits to `main`. Follow §0: every agent runs
+> `git checkout feat/backend-scaffold && git pull` before starting and `git pull` before every push.
+>
+> **How to delegate:**
+> 1. Use §11 (Suggested Delegation Order) to sequence work. Respect the dependency graph in §10 — do
+>    not start a package until its dependencies are merged and the build is green.
+> 2. Start by delegating **WP-2 (data model & migrations)**, since WP-3 and WP-4 both depend on it.
+> 3. Once WP-2 lands, dispatch **WP-3 (auth)** and **WP-4 (orders core)** in parallel.
+> 4. For each delegation, give the sub-agent: the WP number, its acceptance criteria from §10, the
+>    relevant shared rules from §5/§6/§12, and the branch rule.
+> 5. After each sub-agent reports done, verify `dotnet build` is clean and the WP's acceptance criteria
+>    are met before unblocking dependents.
+>
+> **Guardrails (enforce on every agent):** §12 — server-side price computation, Stripe webhook
+> signature verification, no secrets in the repo, admin endpoints reject non-admin tokens, OrderItem
+> price/name snapshots, Sanity stays the menu source of truth, CORS locked to the Vercel domain.
+>
+> **Report back** after each work package with: what landed, the commit hash, build status, and which
+> package you're delegating next.
+>
+> Begin by reading the spec, then propose your delegation plan for WP-2 before dispatching.
+
+**Operator notes (for the human, not the agent):**
+- Ensure the agent harness has this repo on branch `feat/backend-scaffold` so the spec is readable.
+- WP-8 is frontend work in the Next.js repo root (not `backend/`) — route it to an agent with
+  repo-root access.
+- The final instruction ("propose your plan before dispatching") is a checkpoint to review the plan
+  before a swarm spins up.
