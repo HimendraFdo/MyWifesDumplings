@@ -7,13 +7,31 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { OrderButton } from "@/components/brand/OrderButton";
+import { useAuth } from "@/lib/auth/auth-context";
 
 const NAV_LINKS = [
   { label: "Menu", href: "/#menu" },
   { label: "About", href: "/#about" },
   { label: "Gallery", href: "/#gallery" },
   { label: "Contact", href: "/#contact" },
+  { label: "Order Online", href: "/order" },
 ];
+
+/** Auth-aware account link: "My Orders"/"Admin" when signed in, else "Log in". */
+function AccountLink({ onNavigate }: { onNavigate?: () => void }) {
+  const { session, isAdmin } = useAuth();
+  const href = !session ? "/login" : isAdmin ? "/admin" : "/account/orders";
+  const label = !session ? "Log in" : isAdmin ? "Admin" : "My Orders";
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className="font-body text-sm text-brand-ink/70 transition-colors duration-200 hover:text-brand-red"
+    >
+      {label}
+    </Link>
+  );
+}
 
 interface HeaderProps {
   orderFormUrl?: string;
@@ -57,6 +75,9 @@ export function Header({ orderFormUrl = "#" }: HeaderProps) {
             </motion.li>
           ))}
           <li>
+            <AccountLink />
+          </li>
+          <li>
             <OrderButton href={orderFormUrl} size="sm" />
           </li>
         </ul>
@@ -83,6 +104,7 @@ export function Header({ orderFormUrl = "#" }: HeaderProps) {
                     {link.label}
                   </Link>
                 ))}
+                <AccountLink onNavigate={() => setOpen(false)} />
                 <OrderButton href={orderFormUrl} size="sm" />
               </nav>
             </SheetContent>
