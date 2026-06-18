@@ -67,6 +67,37 @@ public class StripeWebhookServiceTests
         EventPayload("payment_intent.succeeded", paymentIntentId);
 
     /// <summary>
+    /// Builds a realistic <c>payment_intent.payment_failed</c> envelope — the event Stripe actually sends
+    /// when a card is declined (e.g. the <c>4000 0000 0000 0002</c> generic-decline test card). The
+    /// PaymentIntent's status is <c>requires_payment_method</c> and it carries a <c>last_payment_error</c>
+    /// with <c>decline_code: generic_decline</c>, mirroring the live payload our endpoint would receive.
+    /// </summary>
+    private static string PaymentFailedPayload(string paymentIntentId) =>
+        $$"""
+        {
+          "id": "evt_test_declined",
+          "object": "event",
+          "api_version": "2024-06-20",
+          "created": 1700000000,
+          "livemode": false,
+          "pending_webhooks": 1,
+          "request": { "id": null, "idempotency_key": null },
+          "type": "payment_intent.payment_failed",
+          "data": { "object": {
+            "id": "{{paymentIntentId}}",
+            "object": "payment_intent",
+            "status": "requires_payment_method",
+            "last_payment_error": {
+              "type": "card_error",
+              "code": "card_declined",
+              "decline_code": "generic_decline",
+              "message": "Your card was declined."
+            }
+          } }
+        }
+        """;
+
+    /// <summary>
     /// Builds a realistic Stripe event envelope (the fields Stripe.net's deserializer expects), with a
     /// PaymentIntent as the data object.
     /// </summary>
@@ -248,6 +279,32 @@ public class StripeWebhookServiceTests
         Assert.Equal(WebhookOutcome.Acknowledged, result.Outcome);
         // The unrelated order is untouched — payment state is set only for the matching PI.
         Assert.Null((await db.Orders.FindAsync(order.Id))!.PaidAt);
+    }
+
+    [Fact]
+    public async Task DeclinedCard_PaymentFailed_LeavesOrderUnpaid_And_SendsNoEmail()
+    {
+        using var db = NewDb();
+        var order = SeedOrder(db, "pi_declined");
+        var email = EmailMock();
+        var sut = BuildSut(db, email.Object);
+
+        // End-to-end decline: a customer pays with the 4000 0000 0000 0002 generic-decline card.
+        // Stripe never sends payment_intent.succeeded for a decline — it sends payment_intent.payment_failed.
+        var payload = PaymentFailedPayload("pi_declined");
+        var header = SignaturedHeader(payload, WebhookSecret);
+
+        var result = await sut.ProcessAsync(payload, header, CancellationToken.None);
+
+        // Acknowledged (200) so Stripe stops retrying, but NOTHING about the order changes.
+        Assert.Equal(WebhookOutcome.Acknowledged, result.Outcome);
+        var unchanged = await db.Orders.FindAsync(order.Id);
+        Assert.Null(unchanged!.PaidAt);                       // never marked paid
+        Assert.Equal(OrderStatus.NotStarted, unchanged.Status); // status untouched
+        // No confirmation email may go out for a payment that did not succeed.
+        email.Verify(
+            e => e.SendOrderConfirmationAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
