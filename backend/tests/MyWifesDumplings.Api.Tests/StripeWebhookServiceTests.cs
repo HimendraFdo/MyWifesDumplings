@@ -26,7 +26,7 @@ namespace MyWifesDumplings.Api.Tests;
 /// </summary>
 public class StripeWebhookServiceTests
 {
-    private const string WebhookSecret = "whsec_test_secret_for_unit_tests";
+    private const string WebhookSecret = "unit-test-webhook-signing-secret";
 
     private static AppDbContext NewDb() =>
         new(new DbContextOptionsBuilder<AppDbContext>()

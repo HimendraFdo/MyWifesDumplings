@@ -19,6 +19,9 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.p12
+*.pfx
 
 # debug
 npm-debug.log*
@@ -26,7 +29,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
+.env.*
 .env*.local
+!.env.example
+
+# local tool settings
+.claude/settings.json
+.claude/settings.local.json
 
 # vercel
 .vercel
