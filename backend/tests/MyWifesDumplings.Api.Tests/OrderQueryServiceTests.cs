@@ -62,7 +62,8 @@ public class OrderQueryServiceTests
         SeedOrder(db, null, "guest@x.com", OrderStatus.Ongoing, paid: true, "tG");
         SeedOrder(db, "userB", "b@x.com", OrderStatus.Completed, paid: true, "tB");
 
-        var result = await new OrderQueryService(db).GetAllAsync(status: null, CancellationToken.None);
+        var result = await new OrderQueryService(db).GetAllAsync(
+            status: null, search: null, CancellationToken.None);
 
         Assert.Equal(3, result.Count);
     }
@@ -79,7 +80,8 @@ public class OrderQueryServiceTests
         SeedOrder(db, null, "g@x.com", OrderStatus.Ongoing, paid: true, "t3");
         SeedOrder(db, "userC", "c@x.com", OrderStatus.Completed, paid: true, "t4");
 
-        var result = await new OrderQueryService(db).GetAllAsync(filter, CancellationToken.None);
+        var result = await new OrderQueryService(db).GetAllAsync(
+            filter, search: null, CancellationToken.None);
 
         Assert.Equal(expected, result.Count);
         Assert.All(result, r => Assert.Equal(filter.ToString(), r.Status));
@@ -93,7 +95,8 @@ public class OrderQueryServiceTests
         SeedOrder(db, "userA", "a@x.com", OrderStatus.NotStarted, paid: true, "tA",
             ("Pork", 12.50m, 2), ("Bao", 9.75m, 3));
 
-        var result = await new OrderQueryService(db).GetAllAsync(null, CancellationToken.None);
+        var result = await new OrderQueryService(db).GetAllAsync(
+            null, search: null, CancellationToken.None);
 
         var order = Assert.Single(result);
         Assert.Equal(54.25m, order.Total);
@@ -212,10 +215,41 @@ public class OrderQueryServiceTests
         SeedOrder(db, "userA", "a@x.com", OrderStatus.NotStarted, paid: true, "super-secret-token",
             ("Pork", 10m, 1));
 
-        var list = await new OrderQueryService(db).GetAllAsync(null, CancellationToken.None);
+        var list = await new OrderQueryService(db).GetAllAsync(
+            null, search: null, CancellationToken.None);
         var json = System.Text.Json.JsonSerializer.Serialize(list);
 
         Assert.DoesNotContain("super-secret-token", json);
         Assert.DoesNotContain("GuestLookupToken", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AdminSearch_MatchesExactOrderId()
+    {
+        using var db = NewDb();
+        var expected = SeedOrder(
+            db, null, "first@example.com", OrderStatus.NotStarted, true, "first");
+        SeedOrder(db, null, "second@example.com", OrderStatus.NotStarted, true, "second");
+
+        var result = await new OrderQueryService(db).GetAllAsync(
+            null, $"  {expected.Id}  ", CancellationToken.None);
+
+        Assert.Equal(expected.Id, Assert.Single(result).Id);
+    }
+
+    [Fact]
+    public async Task AdminSearch_MatchesEmailCaseInsensitively_AndCombinesWithStatus()
+    {
+        using var db = NewDb();
+        SeedOrder(db, null, "Owner@Example.COM", OrderStatus.Ongoing, true, "one");
+        SeedOrder(db, null, "owner@example.com", OrderStatus.Completed, true, "two");
+        SeedOrder(db, null, "other@example.com", OrderStatus.Ongoing, true, "three");
+
+        var result = await new OrderQueryService(db).GetAllAsync(
+            OrderStatus.Ongoing, "OWNER@EXAMPLE", CancellationToken.None);
+
+        var order = Assert.Single(result);
+        Assert.Equal("Owner@Example.COM", order.CustomerEmail);
+        Assert.Equal("Ongoing", order.Status);
     }
 }

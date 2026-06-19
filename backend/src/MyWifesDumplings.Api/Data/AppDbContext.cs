@@ -17,6 +17,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<OrderStatusAudit> OrderStatusAudits => Set<OrderStatusAudit>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -38,6 +39,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
                  .HasForeignKey(i => i.OrderId)
                  .OnDelete(DeleteBehavior.Cascade);
 
+            order.HasMany(o => o.StatusAudits)
+                 .WithOne(a => a.Order)
+                 .HasForeignKey(a => a.OrderId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
             order.Property(o => o.CustomerEmail).IsRequired().HasMaxLength(256);
             order.Property(o => o.GuestLookupToken).IsRequired().HasMaxLength(128);
             order.Property(o => o.StripePaymentIntentId).HasMaxLength(256);
@@ -50,6 +56,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             item.Property(i => i.MenuItemId).IsRequired().HasMaxLength(128);
             item.Property(i => i.NameSnapshot).IsRequired().HasMaxLength(256);
             item.Property(i => i.UnitPriceSnapshot).HasPrecision(10, 2);
+        });
+
+        builder.Entity<OrderStatusAudit>(audit =>
+        {
+            audit.Property(a => a.AdminUserId).IsRequired().HasMaxLength(450);
+            audit.Property(a => a.AdminEmail).IsRequired().HasMaxLength(256);
+            audit.Property(a => a.ChangedAtUtc).IsRequired();
+            audit.HasIndex(a => new { a.OrderId, a.ChangedAtUtc });
         });
     }
 }

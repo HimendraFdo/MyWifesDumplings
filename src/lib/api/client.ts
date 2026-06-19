@@ -1,10 +1,12 @@
 import type {
   AuthResponse,
+  ChangePasswordRequest,
   CreateOrderRequest,
   CreateOrderResponse,
   LoginRequest,
   OrderStatus,
   OrderSummary,
+  OrderStatusAudit,
   RegisterRequest,
 } from "./types";
 import { ORDER_STATUS_VALUE } from "./types";
@@ -134,9 +136,22 @@ export const api = {
   },
 
   // --- Admin (Admin-role JWT required) ---
-  adminOrders(token: string, status?: OrderStatus, signal?: AbortSignal) {
-    const qs = status ? `?status=${encodeURIComponent(status)}` : "";
-    return request<OrderSummary[]>(`/api/admin/orders${qs}`, { token, signal });
+  adminOrders(
+    token: string,
+    options?: {
+      status?: OrderStatus;
+      search?: string;
+      signal?: AbortSignal;
+    },
+  ) {
+    const params = new URLSearchParams();
+    if (options?.status) params.set("status", options.status);
+    if (options?.search?.trim()) params.set("search", options.search.trim());
+    const qs = params.size > 0 ? `?${params.toString()}` : "";
+    return request<OrderSummary[]>(`/api/admin/orders${qs}`, {
+      token,
+      signal: options?.signal,
+    });
   },
 
   updateOrderStatus(id: number, status: OrderStatus, token: string) {
@@ -145,6 +160,21 @@ export const api = {
     return request<OrderSummary>(`/api/orders/${id}/status`, {
       method: "PATCH",
       body: { status: ORDER_STATUS_VALUE[status] },
+      token,
+    });
+  },
+
+  getOrderAudit(id: number, token: string, signal?: AbortSignal) {
+    return request<OrderStatusAudit[]>(`/api/admin/orders/${id}/audit`, {
+      token,
+      signal,
+    });
+  },
+
+  changeAdminPassword(payload: ChangePasswordRequest, token: string) {
+    return request<void>("/api/admin/change-password", {
+      method: "POST",
+      body: payload,
       token,
     });
   },

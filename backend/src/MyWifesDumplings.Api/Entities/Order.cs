@@ -38,4 +38,5 @@ public class Order
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public ICollection<OrderStatusAudit> StatusAudits { get; set; } = new List<OrderStatusAudit>();
 }

@@ -60,6 +60,24 @@ public sealed record OrderSummaryResponse(
 /// <summary>Body of <c>PATCH /api/orders/{id}/status</c>: the target lifecycle status (spec §7/§8).</summary>
 public sealed record UpdateOrderStatusRequest(OrderStatus Status);
 
+public sealed record OrderStatusAuditResponse(
+    long Id,
+    int OrderId,
+    string AdminEmail,
+    string PreviousStatus,
+    string NewStatus,
+    DateTime ChangedAtUtc)
+{
+    public static OrderStatusAuditResponse FromAudit(OrderStatusAudit audit) =>
+        new(
+            audit.Id,
+            audit.OrderId,
+            audit.AdminEmail,
+            audit.PreviousStatus.ToString(),
+            audit.NewStatus.ToString(),
+            audit.ChangedAtUtc);
+}
+
 /// <summary>
 /// Parses the optional <c>?status=</c> filter for the admin order list (spec §8). Extracted from the
 /// endpoint so the accept/reject rules are unit-testable without spinning up the HTTP pipeline.

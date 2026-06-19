@@ -19,6 +19,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const passwordChanged = params.get("passwordChanged") === "true";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +34,9 @@ function LoginForm() {
       else router.push("/account/orders");
     } catch (err) {
       setError(
-        err instanceof ApiError && err.status === 401
+        err instanceof ApiError && err.status === 429
+          ? "Too many login attempts. Please wait a minute and try again."
+          : err instanceof ApiError && err.status === 401
           ? "Incorrect email or password."
           : err instanceof ApiError
             ? err.message
@@ -45,6 +48,14 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {passwordChanged && (
+        <p
+          role="status"
+          className="rounded-md border border-green-700/20 bg-green-50 p-3 font-body text-sm text-green-800"
+        >
+          Password changed successfully. Please log in again.
+        </p>
+      )}
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -66,7 +77,9 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <FieldError>{error}</FieldError>
+      <div role="alert" aria-live="assertive">
+        <FieldError>{error}</FieldError>
+      </div>
       <Button
         type="submit"
         disabled={submitting}

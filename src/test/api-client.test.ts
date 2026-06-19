@@ -60,13 +60,40 @@ describe("api client", () => {
   it("sends the status filter and bearer token on the admin list", async () => {
     const fetchMock = mockFetch(200, []);
 
-    await api.adminOrders("admin-jwt", "Ongoing");
+    await api.adminOrders("admin-jwt", {
+      status: "Ongoing",
+      search: " Owner+orders@example.com ",
+    });
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://api.test/api/admin/orders?status=Ongoing");
+    expect(url).toBe(
+      "https://api.test/api/admin/orders?status=Ongoing&search=Owner%2Borders%40example.com",
+    );
     expect((init.headers as Record<string, string>).Authorization).toBe(
       "Bearer admin-jwt",
     );
+  });
+
+  it("loads audit history and posts password changes with the admin token", async () => {
+    const fetchMock = mockFetch(200, []);
+
+    await api.getOrderAudit(42, "admin-jwt");
+    await api.changeAdminPassword(
+      {
+        currentPassword: "old-password",
+        newPassword: "New-password-123!",
+        confirmPassword: "New-password-123!",
+      },
+      "admin-jwt",
+    );
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "https://api.test/api/admin/orders/42/audit",
+    );
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://api.test/api/admin/change-password",
+    );
+    expect(fetchMock.mock.calls[1][1].method).toBe("POST");
   });
 
   it("PATCH status sends the NUMERIC enum value (the API has no string-enum converter)", async () => {

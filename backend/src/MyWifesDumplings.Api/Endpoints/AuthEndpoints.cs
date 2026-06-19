@@ -56,7 +56,8 @@ public static class AuthEndpoints
         group.MapPost("/login", async (
             LoginRequest request,
             UserManager<ApplicationUser> userManager,
-            ITokenService tokenService) =>
+            ITokenService tokenService,
+            ILogger<ApplicationUser> logger) =>
         {
             if (!TryValidate(request, out var validationErrors))
             {
@@ -66,15 +67,23 @@ public static class AuthEndpoints
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
             {
+                logger.LogWarning(
+                    "Rejected login attempt from supplied email {LoginEmail}", request.Email);
                 // Same response whether the user is missing or the password is wrong (no enumeration).
                 return Results.Unauthorized();
             }
 
             var roles = await userManager.GetRolesAsync(user);
             var (token, expiresAtUtc) = tokenService.CreateToken(user, roles);
+            if (roles.Contains(DbSeeder.AdminRole))
+            {
+                logger.LogInformation(
+                    "Administrator {AdminUserId} logged in successfully", user.Id);
+            }
 
             return Results.Ok(new AuthResponse(token, expiresAtUtc, user.Email!, roles.ToArray()));
         })
+        .RequireRateLimiting("login")
         .WithName("Login")
         .WithOpenApi();
 

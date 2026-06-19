@@ -42,6 +42,12 @@ export interface AuthResponse {
   roles: string[];
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 /** Order lifecycle statuses (spec §7). String form matches the read DTO; the numeric
  *  value matches the PATCH request body (the API binds the enum by its integer value). */
 export type OrderStatus = "NotStarted" | "Ongoing" | "Completed";
@@ -77,4 +83,13 @@ export interface OrderSummary {
   total: number;
   items: OrderLineSummary[];
   flavour: string | null;
+}
+
+export interface OrderStatusAudit {
+  id: number;
+  orderId: number;
+  adminEmail: string;
+  previousStatus: OrderStatus;
+  newStatus: OrderStatus;
+  changedAtUtc: string;
 }

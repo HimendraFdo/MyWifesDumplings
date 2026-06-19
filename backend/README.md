@@ -13,6 +13,22 @@ work-package breakdown.
 - CORS policy locked to the frontend origin(s)
 - `/health` endpoint
 
+## Administration API
+
+The owner administration flow uses JWT `Admin` role authorization:
+
+| Method | Route | Purpose |
+|---|---|---|
+| `POST` | `/api/auth/login` | Login, limited to 5 attempts per IP per minute |
+| `GET` | `/api/admin/orders?status=&search=` | Search and filter all orders |
+| `PATCH` | `/api/orders/{id}/status` | Apply the next paid-order lifecycle transition |
+| `GET` | `/api/admin/orders/{id}/audit` | Read status history oldest first |
+| `POST` | `/api/admin/change-password` | Change the signed-in administrator password |
+
+Status changes are forward-only (`NotStarted` to `Ongoing` to `Completed`) and write an
+`OrderStatusAudit` record atomically with the order update. Migration
+`20260619131503_AddOrderStatusAudits` creates the audit table and index.
+
 ## Run locally
 
 ```bash

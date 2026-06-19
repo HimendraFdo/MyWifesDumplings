@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using MyWifesDumplings.Api.Auth;
 using MyWifesDumplings.Api.Data;
 using MyWifesDumplings.Api.Email;
@@ -81,6 +83,39 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("login", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true,
+            }));
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter =
+                Math.Ceiling(retryAfter.TotalSeconds).ToString();
+        }
+
+        var logger = context.HttpContext.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("LoginRateLimit");
+        logger.LogWarning(
+            "Login rate limit rejected request from IP {RemoteIpAddress}",
+            context.HttpContext.Connection.RemoteIpAddress);
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { error = "Too many login attempts. Please wait a minute and try again." },
+            cancellationToken);
+    };
+});
 
 // --- Orders core (WP-4): server-side pricing + Stripe PaymentIntent creation. ---
 // Sanity stays the menu source of truth (§1/§12): prices come from a price provider, NOT a SQL table.
@@ -198,6 +233,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors(FrontendCors);
+app.UseRateLimiter();
 
 // Authentication must run before authorization, and both after CORS / before endpoints (WP-3).
 app.UseAuthentication();

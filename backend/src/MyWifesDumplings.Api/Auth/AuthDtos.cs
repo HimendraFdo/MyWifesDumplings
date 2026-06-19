@@ -14,3 +14,8 @@ public sealed record LoginRequest(
 
 /// <summary>Issued on successful login.</summary>
 public sealed record AuthResponse(string AccessToken, DateTime ExpiresAtUtc, string Email, string[] Roles);
+
+public sealed record ChangePasswordRequest(
+    [property: Required] string CurrentPassword,
+    [property: Required] string NewPassword,
+    [property: Required] string ConfirmPassword);

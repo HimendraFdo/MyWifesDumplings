@@ -29,12 +29,26 @@ public sealed class OrderQueryService
     /// every order. Newest first.
     /// </summary>
     public async Task<IReadOnlyList<OrderSummaryResponse>> GetAllAsync(
-        OrderStatus? status, CancellationToken ct)
+        OrderStatus? status, string? search, CancellationToken ct)
     {
         var query = BaseQuery();
         if (status is not null)
         {
             query = query.Where(o => o.Status == status.Value);
+        }
+
+        var trimmedSearch = search?.Trim();
+        if (!string.IsNullOrEmpty(trimmedSearch))
+        {
+            if (int.TryParse(trimmedSearch, out var orderId))
+            {
+                query = query.Where(o => o.Id == orderId);
+            }
+            else
+            {
+                var normalizedSearch = trimmedSearch.ToLower();
+                query = query.Where(o => o.CustomerEmail.ToLower().Contains(normalizedSearch));
+            }
         }
 
         var orders = await query.ToListAsync(ct);
