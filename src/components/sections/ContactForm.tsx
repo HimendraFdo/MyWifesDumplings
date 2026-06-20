@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { contactSchema, ContactFormData } from "@/lib/validations";
 import { sendEnquiry } from "@/app/actions/sendEnquiry";
+import { PigDeco } from "@/components/brand/Decorations";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -43,7 +44,7 @@ export function ContactForm() {
   };
 
   const inputClass =
-    "w-full font-body text-sm text-brand-ink bg-[#FBF4EC] border-2 border-brand-red/40 rounded px-3 py-2 outline-none focus:border-brand-red transition-colors placeholder:text-brand-ink/30";
+    "w-full min-h-[44px] font-body text-sm text-brand-ink bg-[#FBF4EC] border-2 border-brand-red/40 rounded px-3 py-2.5 outline-none focus:border-brand-red transition-colors placeholder:text-brand-ink/30";
   const errorClass = "font-body text-xs text-red-600 mt-1";
   const labelClass = "block font-body text-sm font-medium text-brand-ink/70 mb-1";
 
@@ -55,18 +56,19 @@ export function ContactForm() {
         transition={{ duration: 0.5, ease: [0.175, 0.885, 0.32, 1.275] }}
         className="text-center py-12 space-y-3"
       >
-        <motion.p
+        <motion.div
           initial={{ scale: 1.3, rotate: -6 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
-          className="font-display text-3xl italic text-brand-ink"
+          className="flex flex-col items-center gap-2"
         >
-          Thank you! 🥟
-        </motion.p>
+          <PigDeco className="w-14 h-10" />
+          <p className="font-display text-3xl italic text-brand-ink">Thank you!</p>
+        </motion.div>
         <p className="font-body text-brand-ink/70">We&apos;ll be in touch shortly.</p>
         <button
           onClick={() => setStatus("idle")}
-          className="font-body text-sm text-brand-red border-b border-brand-red hover:opacity-70 transition-opacity"
+          className="inline-flex min-h-[44px] items-center font-body text-sm text-brand-red border-b border-brand-red hover:opacity-70 transition-opacity"
         >
           Send another message
         </button>
@@ -111,15 +113,15 @@ export function ContactForm() {
 
       <fieldset>
         <legend className={labelClass}>Flavours * (select all that apply)</legend>
-        <div className="flex gap-6 mt-1">
-          <label className="flex items-center gap-2 font-body text-sm text-brand-ink/80 cursor-pointer">
+        <div className="flex flex-wrap gap-x-6 mt-1">
+          <label className="flex min-h-[44px] items-center gap-2 py-2 font-body text-sm text-brand-ink/80 cursor-pointer">
             <input type="checkbox" value="pork_chives" {...register("flavours")}
-              className="accent-brand-red w-4 h-4" />
+              className="accent-brand-red w-5 h-5" />
             Pork &amp; Chives
           </label>
-          <label className="flex items-center gap-2 font-body text-sm text-brand-ink/80 cursor-pointer">
+          <label className="flex min-h-[44px] items-center gap-2 py-2 font-body text-sm text-brand-ink/80 cursor-pointer">
             <input type="checkbox" value="pork_cabbage" {...register("flavours")}
-              className="accent-brand-red w-4 h-4" />
+              className="accent-brand-red w-5 h-5" />
             Pork &amp; Cabbage
           </label>
         </div>

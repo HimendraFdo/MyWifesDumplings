@@ -78,10 +78,27 @@ const config: Config = {
           "70%": { opacity: "1", transform: "scale(0.95) rotate(1deg)" },
           "100%": { opacity: "1", transform: "scale(1) rotate(0deg)" },
         },
+        /* Dynamic scatter motion — gentle drifting so decorations feel alive */
+        float: {
+          "0%, 100%": { transform: "translateY(0) rotate(var(--deco-rot, 0deg))" },
+          "50%": { transform: "translateY(-12px) rotate(calc(var(--deco-rot, 0deg) + 2deg))" },
+        },
+        sway: {
+          "0%, 100%": { transform: "rotate(var(--deco-rot, 0deg))" },
+          "50%": { transform: "rotate(calc(var(--deco-rot, 0deg) - 5deg))" },
+        },
+        drift: {
+          "0%, 100%": { transform: "translate(0, 0) rotate(var(--deco-rot, 0deg))" },
+          "33%": { transform: "translate(6px, -8px) rotate(calc(var(--deco-rot, 0deg) + 3deg))" },
+          "66%": { transform: "translate(-5px, -4px) rotate(calc(var(--deco-rot, 0deg) - 2deg))" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s ease-out forwards",
         stamp: "stamp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+        float: "float 7s ease-in-out infinite",
+        sway: "sway 6s ease-in-out infinite",
+        drift: "drift 9s ease-in-out infinite",
       },
     },
   },

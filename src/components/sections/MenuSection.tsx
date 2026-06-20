@@ -2,7 +2,7 @@ import type { MenuItem } from "@/types";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { MenuCard } from "@/components/brand/MenuCard";
 import { RedDivider } from "@/components/brand/RedDivider";
-import { ChiveSprig, SoyBottle } from "@/components/brand/Decorations";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface MenuSectionProps {
@@ -31,19 +31,10 @@ export function MenuSection({ items }: MenuSectionProps) {
 
   return (
     <section id="menu" className="relative py-16 sm:py-20 px-4 overflow-x-clip">
-      {/* Decorative poster-style border elements */}
-      <div className="absolute left-0 top-0 bottom-0 pointer-events-none hidden lg:flex flex-col justify-around pl-2">
-        <ChiveSprig className="w-12 h-40 opacity-50" />
-        <SoyBottle className="w-8 h-24 opacity-40 mt-4" />
-        <ChiveSprig className="w-10 h-32 opacity-35 scale-x-[-1]" />
-      </div>
-      <div className="absolute right-0 top-0 bottom-0 pointer-events-none hidden lg:flex flex-col justify-around pr-2">
-        <SoyBottle className="w-8 h-24 opacity-40" />
-        <ChiveSprig className="w-12 h-40 opacity-50 scale-x-[-1]" />
-        <ChiveSprig className="w-10 h-28 opacity-30" />
-      </div>
+      {/* Dynamic scatter — graphics dotted across the menu, not just the edges */}
+      <DynamicScatter variant="menu" />
 
-      <div className="max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-5xl mx-auto">
         <ScrollReveal>
           <SectionHeading subheading="Every dumpling is made fresh, by hand, with love.">
             The Menu

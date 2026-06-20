@@ -3,6 +3,7 @@ import type { GalleryImage } from "@/types";
 import { urlFor } from "@/lib/sanity/image";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { RedDivider } from "@/components/brand/RedDivider";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface GallerySectionProps {
@@ -13,8 +14,11 @@ export function GallerySection({ images }: GallerySectionProps) {
   if (images.length === 0) return null;
 
   return (
-    <section id="gallery" className="py-16 sm:py-20 px-4 bg-brand-ink/5">
-      <div className="max-w-5xl mx-auto">
+    <section id="gallery" className="relative py-16 sm:py-20 px-4 bg-brand-ink/5 overflow-x-clip">
+      {/* Dynamic scatter — graphics framing the gallery from inside the field */}
+      <DynamicScatter variant="gallery" />
+
+      <div className="relative z-10 max-w-5xl mx-auto">
         <ScrollReveal>
           <SectionHeading subheading="Fresh from the kitchen.">
             Gallery
@@ -34,10 +38,15 @@ export function GallerySection({ images }: GallerySectionProps) {
                 [border-radius:4px_12px_6px_10px/10px_6px_12px_4px]"
             >
               <Image
-                src={urlFor(img.image).width(600).url()}
+                src={urlFor(img.image)
+                  .width(900)
+                  .auto("format")
+                  .quality(88)
+                  .url()}
                 alt={img.alt}
-                width={600}
-                height={400}
+                width={900}
+                height={600}
+                quality={90}
                 className="w-full h-auto object-cover"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
               />

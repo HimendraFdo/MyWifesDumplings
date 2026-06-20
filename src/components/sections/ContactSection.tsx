@@ -1,6 +1,7 @@
 import { OrderButton } from "@/components/brand/OrderButton";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { RedDivider } from "@/components/brand/RedDivider";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 import { ContactForm } from "./ContactForm";
 
 interface ContactSectionProps {
@@ -10,8 +11,11 @@ interface ContactSectionProps {
 
 export function ContactSection({ orderFormUrl, instagramUrl }: ContactSectionProps) {
   return (
-    <section id="contact" className="py-24 px-4">
-      <div className="max-w-2xl mx-auto">
+    <section id="contact" className="relative py-24 px-4 overflow-x-clip">
+      {/* Dynamic scatter — a flying pig and friends around the contact form */}
+      <DynamicScatter variant="contact" />
+
+      <div className="relative z-10 max-w-2xl mx-auto">
         <SectionHeading subheading="Two ways to reach us — pick your favourite.">
           Get in Touch
         </SectionHeading>

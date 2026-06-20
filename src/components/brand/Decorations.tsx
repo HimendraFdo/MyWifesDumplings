@@ -135,6 +135,69 @@ export function PigDeco({ className, flipped = false }: DecoProps & { flipped?: 
   );
 }
 
+/** Long striated pork strip — the hand-cut red meat strips bordering the menu poster */
+export function PorkStrip({ className }: DecoProps) {
+  return (
+    <svg
+      viewBox="0 0 70 220"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("fill-brand-red", className)}
+      aria-hidden="true"
+    >
+      {/* Cream cut-out backing so it reads as a sticker like the poster */}
+      <path
+        d="M 30 4 Q 50 6 48 30 Q 60 70 52 110 Q 62 155 50 196 Q 46 216 28 214 Q 8 212 12 188 Q 4 150 12 108 Q 6 64 16 28 Q 12 6 30 4 Z"
+        fill="#F5E6D3"
+        transform="scale(1.08) translate(-2 -4)"
+        opacity="0.9"
+      />
+      {/* Meat body */}
+      <path d="M 30 6 Q 48 8 46 30 Q 56 70 50 110 Q 58 152 48 192 Q 44 210 28 208 Q 10 206 14 184 Q 6 148 14 108 Q 8 66 18 30 Q 14 8 30 6 Z" />
+      {/* Diagonal grain striations */}
+      <g stroke="#F5E6D3" strokeWidth="1.6" opacity="0.5" strokeLinecap="round" fill="none">
+        <path d="M 18 24 L 40 34" />
+        <path d="M 15 44 L 44 58" />
+        <path d="M 14 66 L 46 78" />
+        <path d="M 13 90 L 47 100" />
+        <path d="M 13 114 L 47 122" />
+        <path d="M 14 138 L 46 146" />
+        <path d="M 15 162 L 45 168" />
+        <path d="M 17 186 L 42 190" />
+      </g>
+    </svg>
+  );
+}
+
+/** Marbled cross-section meat slice — the round speckled cuts dotted around the poster */
+export function MeatSlice({ className }: DecoProps) {
+  return (
+    <svg
+      viewBox="0 0 120 110"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("fill-brand-red", className)}
+      aria-hidden="true"
+    >
+      {/* Cream sticker backing */}
+      <path
+        d="M 22 18 Q 60 6 96 20 Q 118 36 110 64 Q 108 92 76 100 Q 40 108 18 88 Q 2 64 10 40 Q 14 24 22 18 Z"
+        fill="#F5E6D3"
+        opacity="0.9"
+        transform="scale(1.06) translate(-3 -3)"
+      />
+      {/* Marbled meat body */}
+      <path d="M 24 20 Q 60 10 94 22 Q 114 38 106 62 Q 104 88 74 96 Q 40 104 20 84 Q 6 62 14 40 Q 18 26 24 20 Z" />
+      {/* Marbling streaks */}
+      <g stroke="#F5E6D3" strokeWidth="2" opacity="0.45" strokeLinecap="round" fill="none">
+        <path d="M 30 38 Q 46 30 64 36" />
+        <path d="M 28 54 Q 52 48 78 54" />
+        <path d="M 34 70 Q 56 66 80 72" />
+        <path d="M 48 84 Q 64 80 78 84" />
+        <path d="M 84 40 Q 92 50 88 64" />
+      </g>
+    </svg>
+  );
+}
+
 /** Horizontal decorative chive cluster for dividers */
 export function ChiveCluster({ className }: DecoProps) {
   return (

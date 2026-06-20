@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/brand/SectionHeading";
 import { PricingCard } from "@/components/brand/PricingCard";
 import { OrderButton } from "@/components/brand/OrderButton";
 import { RedDivider } from "@/components/brand/RedDivider";
-import { SoyBottle, CabbageHead } from "@/components/brand/Decorations";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface PricingSectionProps {
@@ -41,15 +41,10 @@ export function PricingSection({ tiers, extras, orderFormUrl }: PricingSectionPr
 
   return (
     <section id="pricing" className="relative py-16 sm:py-20 px-4 bg-brand-ink/5 overflow-x-clip">
-      {/* Decorative poster-style elements */}
-      <div className="absolute bottom-8 left-4 pointer-events-none hidden md:block">
-        <CabbageHead className="w-16 h-16 opacity-30" />
-      </div>
-      <div className="absolute top-8 right-4 pointer-events-none hidden md:block">
-        <SoyBottle className="w-10 h-20 opacity-25" />
-      </div>
+      {/* Dynamic scatter — poster art drifting around the pricing block */}
+      <DynamicScatter variant="pricing" />
 
-      <div className="max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-5xl mx-auto">
         <ScrollReveal>
           <SectionHeading subheading="Simple pricing. Big flavour.">
             Pricing
