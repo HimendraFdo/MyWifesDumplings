@@ -43,7 +43,7 @@ export function ContactForm() {
   };
 
   const inputClass =
-    "w-full font-body text-sm text-brand-ink bg-[#FBF4EC] border-2 border-brand-red/40 rounded px-3 py-2 outline-none focus:border-brand-red transition-colors placeholder:text-brand-ink/30";
+    "w-full min-h-[44px] font-body text-sm text-brand-ink bg-[#FBF4EC] border-2 border-brand-red/40 rounded px-3 py-2.5 outline-none focus:border-brand-red transition-colors placeholder:text-brand-ink/30";
   const errorClass = "font-body text-xs text-red-600 mt-1";
   const labelClass = "block font-body text-sm font-medium text-brand-ink/70 mb-1";
 
@@ -66,7 +66,7 @@ export function ContactForm() {
         <p className="font-body text-brand-ink/70">We&apos;ll be in touch shortly.</p>
         <button
           onClick={() => setStatus("idle")}
-          className="font-body text-sm text-brand-red border-b border-brand-red hover:opacity-70 transition-opacity"
+          className="inline-flex min-h-[44px] items-center font-body text-sm text-brand-red border-b border-brand-red hover:opacity-70 transition-opacity"
         >
           Send another message
         </button>
@@ -111,15 +111,15 @@ export function ContactForm() {
 
       <fieldset>
         <legend className={labelClass}>Flavours * (select all that apply)</legend>
-        <div className="flex gap-6 mt-1">
-          <label className="flex items-center gap-2 font-body text-sm text-brand-ink/80 cursor-pointer">
+        <div className="flex flex-wrap gap-x-6 mt-1">
+          <label className="flex min-h-[44px] items-center gap-2 py-2 font-body text-sm text-brand-ink/80 cursor-pointer">
             <input type="checkbox" value="pork_chives" {...register("flavours")}
-              className="accent-brand-red w-4 h-4" />
+              className="accent-brand-red w-5 h-5" />
             Pork &amp; Chives
           </label>
-          <label className="flex items-center gap-2 font-body text-sm text-brand-ink/80 cursor-pointer">
+          <label className="flex min-h-[44px] items-center gap-2 py-2 font-body text-sm text-brand-ink/80 cursor-pointer">
             <input type="checkbox" value="pork_cabbage" {...register("flavours")}
-              className="accent-brand-red w-4 h-4" />
+              className="accent-brand-red w-5 h-5" />
             Pork &amp; Cabbage
           </label>
         </div>
