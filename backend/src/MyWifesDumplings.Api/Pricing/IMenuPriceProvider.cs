@@ -7,7 +7,11 @@ namespace MyWifesDumplings.Api.Pricing;
 /// </summary>
 /// <param name="Name">Display name at lookup time — snapshotted onto the OrderItem.</param>
 /// <param name="UnitPrice">Authoritative unit price (major currency units, e.g. dollars).</param>
-public sealed record MenuItemPrice(string Name, decimal UnitPrice);
+/// <param name="Dumplings">
+/// How many dumplings this item represents (a pricing tier's piece count; null/0 for non-dumpling
+/// items like sauces/soups). Used server-side to apply the 60+ free-delivery rule — never affects price.
+/// </param>
+public sealed record MenuItemPrice(string Name, decimal UnitPrice, int? Dumplings = null);
 
 /// <summary>
 /// Resolves the authoritative price/name for a menu item id. Sanity remains the menu source of

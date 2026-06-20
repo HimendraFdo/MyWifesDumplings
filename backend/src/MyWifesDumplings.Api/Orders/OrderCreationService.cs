@@ -48,11 +48,26 @@ public sealed class OrderCreationService
             return OrderBuildResult.Fail("Order must contain at least one item.");
         }
 
+        static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
         var order = new Order
         {
             CustomerEmail = request.CustomerEmail,
             // Chosen dumpling type — order metadata, not priced. Trimmed; null when blank.
-            Flavour = string.IsNullOrWhiteSpace(request.Flavour) ? null : request.Flavour.Trim(),
+            Flavour = Clean(request.Flavour),
+            // Contact + fulfilment metadata (does not affect line pricing). Trimmed; null when blank.
+            CustomerName = Clean(request.CustomerName),
+            CustomerPhone = Clean(request.CustomerPhone),
+            Method = request.Method,
+            // Pickup carries no zone; normalise an explicit None to null too.
+            Zone = request.Method == FulfilmentMethod.Delivery && request.Zone is not (null or DeliveryZone.None)
+                ? request.Zone
+                : null,
+            DeliveryAddress = request.Method == FulfilmentMethod.Delivery ? Clean(request.DeliveryAddress) : null,
+            DeliveryPostcode = request.Method == FulfilmentMethod.Delivery ? Clean(request.DeliveryPostcode) : null,
+            DeliveryNotes = Clean(request.DeliveryNotes),
+            PreferredDay = Clean(request.PreferredDay),
+            PreferredTime = Clean(request.PreferredTime),
             // PaidAt stays null — WP-4 creates an UNPAID order. The webhook (WP-5) stamps payment.
             PaidAt = null,
         };
@@ -70,6 +85,7 @@ public sealed class OrderCreationService
         }
 
         decimal total = 0m;
+        var totalDumplings = 0;
 
         foreach (var line in request.Items)
         {
@@ -96,6 +112,8 @@ public sealed class OrderCreationService
             }
 
             total += price.UnitPrice * line.Quantity;
+            // Count dumplings for the 60+ free-delivery rule (tiers carry a piece count; others null).
+            totalDumplings += (price.Dumplings ?? 0) * line.Quantity;
 
             order.OrderItems.Add(new OrderItem
             {
@@ -111,7 +129,14 @@ public sealed class OrderCreationService
             return OrderBuildResult.Fail("Order total must be greater than zero.");
         }
 
-        var amountMinorUnits = ToMinorUnits(total);
+        // Delivery fee is ALWAYS server-computed from the chosen method/zone + free rules (spec §12).
+        var deliveryFee = DeliveryPricing.Quote(
+            order.Method,
+            order.Zone ?? DeliveryZone.None,
+            totalDumplings);
+        order.DeliveryFee = deliveryFee;
+
+        var amountMinorUnits = ToMinorUnits(total + deliveryFee);
         return OrderBuildResult.Ok(order, amountMinorUnits);
     }
 

@@ -2,6 +2,13 @@ import type { OrderSummary } from "@/lib/api/types";
 import { ORDER_STATUS_LABEL } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
+/** Maps the backend zone enum string to a human label. */
+const ZONE_LABEL: Record<string, string> = {
+  EastSouth: "East & South Auckland",
+  AucklandCentral: "Auckland Central",
+  WestNorth: "West & North Auckland",
+};
+
 const STATUS_STYLES: Record<string, string> = {
   NotStarted: "bg-brand-ink/10 text-brand-ink",
   Ongoing: "bg-brand-red/15 text-brand-red-dark",
@@ -59,6 +66,38 @@ export function OrderCard({
         </p>
       )}
 
+      {/* Fulfilment (pickup vs delivery) details. */}
+      <div className="mt-3 rounded-lg bg-brand-ink/5 p-3 font-body text-sm text-brand-ink/80">
+        <p>
+          <span className="font-semibold">
+            {order.method === "Delivery" ? "Delivery" : "Pickup"}
+          </span>
+          {order.method === "Delivery" && order.zone && (
+            <> · {ZONE_LABEL[order.zone] ?? order.zone}</>
+          )}
+        </p>
+        {order.method === "Delivery" && order.deliveryAddress && (
+          <p className="text-brand-ink/60">
+            {order.deliveryAddress}
+            {order.deliveryPostcode ? `, ${order.deliveryPostcode}` : ""}
+          </p>
+        )}
+        {(order.customerName || order.customerPhone) && (
+          <p className="text-brand-ink/60">
+            {[order.customerName, order.customerPhone].filter(Boolean).join(" · ")}
+          </p>
+        )}
+        {(order.preferredDay || order.preferredTime) && (
+          <p className="text-brand-ink/60">
+            Preferred:{" "}
+            {[order.preferredDay, order.preferredTime].filter(Boolean).join(", ")}
+          </p>
+        )}
+        {order.deliveryNotes && (
+          <p className="text-brand-ink/60">Notes: {order.deliveryNotes}</p>
+        )}
+      </div>
+
       <ul className="mt-4 divide-y divide-brand-ink/10 border-t border-brand-ink/10">
         {order.items.map((item, i) => (
           <li
@@ -76,7 +115,23 @@ export function OrderCard({
         ))}
       </ul>
 
-      <div className="mt-3 flex justify-between border-t border-brand-ink/10 pt-3 font-body font-semibold text-brand-ink">
+      {order.method === "Delivery" && (
+        <div className="mt-3 flex justify-between border-t border-brand-ink/10 pt-3 font-body text-sm text-brand-ink/70">
+          <span>Delivery</span>
+          <span className="tabular-nums">
+            {order.deliveryFee > 0 ? `$${order.deliveryFee.toFixed(2)}` : "Free"}
+          </span>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "mt-3 flex justify-between font-body font-semibold text-brand-ink",
+          order.method === "Delivery"
+            ? "pt-1"
+            : "border-t border-brand-ink/10 pt-3",
+        )}
+      >
         <span>Total</span>
         <span className="tabular-nums">${order.total.toFixed(2)}</span>
       </div>

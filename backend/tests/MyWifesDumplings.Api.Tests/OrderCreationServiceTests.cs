@@ -1,4 +1,5 @@
 using Moq;
+using MyWifesDumplings.Api.Entities;
 using MyWifesDumplings.Api.Orders;
 using MyWifesDumplings.Api.Pricing;
 using Xunit;
@@ -129,6 +130,50 @@ public class OrderCreationServiceTests
 
         Assert.True(result.Succeeded);
         Assert.Equal("user-123", result.Order!.UserId);
+    }
+
+    [Fact]
+    public async Task Delivery_Adds_ZoneFee_To_Amount_And_Stores_It_On_Order()
+    {
+        // 20-piece tier $16, returning customer, Auckland Central ($4) => $20.00 => 2000 cents.
+        var provider = MockProvider(("tier20", "20 dumplings", 16m));
+        var request = new CreateOrderRequest(
+            "guest@example.com",
+            new[] { new CartLineRequest("tier20", 1) },
+            CustomerName: "Jane",
+            CustomerPhone: "0220785540",
+            Method: FulfilmentMethod.Delivery,
+            Zone: DeliveryZone.AucklandCentral,
+            DeliveryAddress: "1 Queen St",
+            DeliveryPostcode: "1010");
+
+        var result = await BuildSut(provider.Object).BuildAsync(
+            request, authenticatedUserId: null, CancellationToken.None);
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(4m, result.Order!.DeliveryFee);
+        Assert.Equal(DeliveryZone.AucklandCentral, result.Order.Zone);
+        Assert.Equal("1 Queen St", result.Order.DeliveryAddress);
+        Assert.Equal(2000L, result.AmountMinorUnits);
+    }
+
+    [Fact]
+    public async Task Pickup_Is_Free_And_Clears_DeliveryFields()
+    {
+        var provider = MockProvider(("tier20", "20 dumplings", 16m));
+
+        // Pickup ignores any stray zone/address and is free.
+        var pickup = new CreateOrderRequest(
+            "p@example.com", new[] { new CartLineRequest("tier20", 1) },
+            CustomerName: "Pat", CustomerPhone: "0220785540",
+            Method: FulfilmentMethod.Pickup, Zone: DeliveryZone.WestNorth,
+            DeliveryAddress: "should be dropped", DeliveryPostcode: "9999");
+        var pickupResult = await BuildSut(provider.Object).BuildAsync(
+            pickup, null, CancellationToken.None);
+        Assert.Equal(0m, pickupResult.Order!.DeliveryFee);
+        Assert.Null(pickupResult.Order.Zone);
+        Assert.Null(pickupResult.Order.DeliveryAddress);
+        Assert.Equal(1600L, pickupResult.AmountMinorUnits);
     }
 
     [Fact]

@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using Microsoft.Extensions.Options;
 using MyWifesDumplings.Api.Entities;
 
@@ -24,6 +26,90 @@ public sealed class ResendOrderEmailService : IOrderEmailService
         _http = http;
         _options = options.Value;
         _logger = logger;
+    }
+
+    private static string Money(decimal amount) =>
+        amount.ToString("C2", CultureInfo.GetCultureInfo("en-NZ"));
+
+    private static string ZoneLabel(DeliveryZone? zone) => zone switch
+    {
+        DeliveryZone.EastSouth => "East & South Auckland",
+        DeliveryZone.AucklandCentral => "Auckland Central",
+        DeliveryZone.WestNorth => "West & North Auckland",
+        _ => "Auckland",
+    };
+
+    /// <summary>Renders the pickup/delivery details block (server-stored scalar fields).</summary>
+    private string BuildFulfilmentBlock(Order order)
+    {
+        var rows = new StringBuilder();
+
+        void Row(string label, string value) => rows.Append(
+            $"""<tr><td style="padding:2px 0;color:#555;width:130px;vertical-align:top;">{label}</td>"""
+            + $"""<td style="padding:2px 0;color:#1A0A00;font-weight:600;">{System.Net.WebUtility.HtmlEncode(value)}</td></tr>""");
+
+        if (order.Method == FulfilmentMethod.Delivery)
+        {
+            var address = string.Join(", ", new[] { order.DeliveryAddress, order.DeliveryPostcode }
+                .Where(s => !string.IsNullOrWhiteSpace(s)));
+            Row("Delivery to", string.IsNullOrWhiteSpace(address) ? "(address on file)" : address);
+            Row("Area", ZoneLabel(order.Zone));
+            Row("Delivery fee", order.DeliveryFee > 0 ? Money(order.DeliveryFee) : "Free");
+        }
+        else
+        {
+            Row("Pickup from", _options.PickupAddress);
+        }
+
+        if (!string.IsNullOrWhiteSpace(order.PreferredDay)) Row("Preferred day", order.PreferredDay!);
+        if (!string.IsNullOrWhiteSpace(order.PreferredTime)) Row("Preferred time", order.PreferredTime!);
+        if (!string.IsNullOrWhiteSpace(order.CustomerName)) Row("Name", order.CustomerName!);
+        if (!string.IsNullOrWhiteSpace(order.CustomerPhone)) Row("Phone", order.CustomerPhone!);
+        if (!string.IsNullOrWhiteSpace(order.DeliveryNotes)) Row("Notes", order.DeliveryNotes!);
+
+        var heading = order.Method == FulfilmentMethod.Delivery ? "Delivery details" : "Pickup details";
+        return $"""
+                <h2 style="margin:24px 0 8px;font-size:18px;color:#1A0A00;">{heading}</h2>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;">
+                  {rows}
+                </table>
+                """;
+    }
+
+    /// <summary>Renders the item lines + delivery fee + total (order items are loaded for the email).</summary>
+    private string BuildItemsBlock(Order order)
+    {
+        if (order.OrderItems.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var rows = new StringBuilder();
+        decimal itemsTotal = 0m;
+        foreach (var item in order.OrderItems)
+        {
+            var lineTotal = item.UnitPriceSnapshot * item.Quantity;
+            itemsTotal += lineTotal;
+            var name = System.Net.WebUtility.HtmlEncode(item.NameSnapshot);
+            var qty = item.Quantity > 1 ? $" × {item.Quantity}" : string.Empty;
+            rows.Append(
+                $"""<tr><td style="padding:4px 0;color:#1A0A00;">{name}{qty}</td>"""
+                + $"""<td align="right" style="padding:4px 0;color:#1A0A00;">{Money(lineTotal)}</td></tr>""");
+        }
+
+        var feeRow = order.Method == FulfilmentMethod.Delivery
+            ? $"""<tr><td style="padding:4px 0;color:#555;">Delivery</td><td align="right" style="padding:4px 0;color:#555;">{(order.DeliveryFee > 0 ? Money(order.DeliveryFee) : "Free")}</td></tr>"""
+            : string.Empty;
+
+        return $"""
+                <h2 style="margin:24px 0 8px;font-size:18px;color:#1A0A00;">Your order</h2>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;border-collapse:collapse;">
+                  {rows}
+                  {feeRow}
+                  <tr><td style="padding:8px 0 0;border-top:1px solid #eee;font-weight:bold;color:#1A0A00;">Total</td>
+                      <td align="right" style="padding:8px 0 0;border-top:1px solid #eee;font-weight:bold;color:#1A0A00;">{Money(itemsTotal + order.DeliveryFee)}</td></tr>
+                </table>
+                """;
     }
 
     public async Task SendOrderConfirmationAsync(Order order, CancellationToken ct)
@@ -52,6 +138,17 @@ public sealed class ResendOrderEmailService : IOrderEmailService
                """
             : """<p style="margin:0 0 16px;">You can view this order in your account under "My Orders".</p>""";
 
+        var greetingName = string.IsNullOrWhiteSpace(order.CustomerName)
+            ? string.Empty
+            : $" {System.Net.WebUtility.HtmlEncode(order.CustomerName!.Split(' ')[0])}";
+
+        var itemsBlock = BuildItemsBlock(order);
+        var fulfilmentBlock = BuildFulfilmentBlock(order);
+
+        var nextSteps = order.Method == FulfilmentMethod.Delivery
+            ? $"We'll message you on {_options.BusinessPhone} to confirm your delivery, and let you know as your order moves through the kitchen."
+            : $"We'll message you on {_options.BusinessPhone} to confirm your pickup time at {System.Net.WebUtility.HtmlEncode(_options.PickupAddress)}, and let you know as your order moves through the kitchen.";
+
         // Inline styles + a mobile viewport: email clients strip <style> blocks and external CSS,
         // so all styling is inline and the layout is a single fluid 600px-max column.
         var html =
@@ -69,10 +166,12 @@ public sealed class ResendOrderEmailService : IOrderEmailService
                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
                           style="max-width:600px;background:#ffffff;border-radius:12px;padding:32px 24px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1A0A00;">
                      <tr><td>
-                       <h1 style="margin:0 0 16px;font-size:24px;color:#1A0A00;">Thanks for your order!</h1>
+                       <h1 style="margin:0 0 16px;font-size:24px;color:#1A0A00;">Thanks for your order{greetingName}!</h1>
                        <p style="margin:0 0 16px;">We've received your payment for order <strong>#{order.Id}</strong>.</p>
+                       {itemsBlock}
+                       {fulfilmentBlock}
+                       <p style="margin:24px 0 16px;">{nextSteps}</p>
                        {actionBlock}
-                       <p style="margin:0 0 8px;">We'll message you to arrange a pickup time and place in Auckland, and let you know as your order moves through the kitchen.</p>
                      </td></tr>
                    </table>
                  </td></tr>

@@ -30,7 +30,17 @@ public sealed record OrderSummaryResponse(
     DateTime CreatedAt,
     decimal Total,
     IReadOnlyList<OrderLineSummary> Items,
-    string? Flavour)
+    string? Flavour,
+    string Method,
+    string? Zone,
+    decimal DeliveryFee,
+    string? CustomerName,
+    string? CustomerPhone,
+    string? DeliveryAddress,
+    string? DeliveryPostcode,
+    string? DeliveryNotes,
+    string? PreferredDay,
+    string? PreferredTime)
 {
     /// <summary>Projects an <see cref="Order"/> (with its items loaded) into the read model.</summary>
     public static OrderSummaryResponse FromOrder(Order order)
@@ -51,9 +61,20 @@ public sealed record OrderSummaryResponse(
             order.PaidAt is not null,
             order.PaidAt,
             order.CreatedAt,
-            lines.Sum(l => l.LineTotal),
+            // Total = items + delivery fee, matching the amount charged via Stripe.
+            lines.Sum(l => l.LineTotal) + order.DeliveryFee,
             lines,
-            order.Flavour);
+            order.Flavour,
+            order.Method.ToString(),
+            order.Zone?.ToString(),
+            order.DeliveryFee,
+            order.CustomerName,
+            order.CustomerPhone,
+            order.DeliveryAddress,
+            order.DeliveryPostcode,
+            order.DeliveryNotes,
+            order.PreferredDay,
+            order.PreferredTime);
     }
 }
 

@@ -2,6 +2,7 @@ import { OrderButton } from "@/components/brand/OrderButton";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { RedDivider } from "@/components/brand/RedDivider";
 import { DynamicScatter } from "@/components/brand/DynamicScatter";
+import { LEGAL } from "@/lib/legal";
 import { ContactForm } from "./ContactForm";
 
 interface ContactSectionProps {
@@ -21,6 +22,32 @@ export function ContactSection({ orderFormUrl, instagramUrl }: ContactSectionPro
         </SectionHeading>
 
         <RedDivider className="my-10" />
+
+        {/* Direct contact details */}
+        <div className="mb-12 grid gap-4 sm:grid-cols-3 text-center font-body text-sm">
+          <div>
+            <p className="font-semibold text-brand-ink">Call or text</p>
+            <a
+              href={`tel:${LEGAL.phone.replace(/\s/g, "")}`}
+              className="text-brand-red underline-offset-4 hover:underline"
+            >
+              {LEGAL.phone}
+            </a>
+          </div>
+          <div>
+            <p className="font-semibold text-brand-ink">Email</p>
+            <a
+              href={`mailto:${LEGAL.contactEmail}`}
+              className="break-words text-brand-red underline-offset-4 hover:underline"
+            >
+              {LEGAL.contactEmail}
+            </a>
+          </div>
+          <div>
+            <p className="font-semibold text-brand-ink">Pickup &amp; kitchen</p>
+            <p className="text-brand-ink/70">{LEGAL.pickupAddress}</p>
+          </div>
+        </div>
 
         {/* Quick order CTA */}
         <div className="text-center mb-12 space-y-3">

@@ -47,11 +47,19 @@ export default function TermsPage() {
         </ul>
       </LegalSection>
 
-      <LegalSection heading="Pickup">
+      <LegalSection heading="Pickup and delivery">
         <ul className="list-disc space-y-1 pl-5">
-          <li>Orders are for pickup only, at a time and place we arrange with you.</li>
           <li>
-            Please collect your order at the agreed time so it&apos;s as fresh as possible.
+            Choose pickup or delivery at checkout. Pickup is from 70 Great South Road,
+            Epsom, Auckland, at a time we arrange with you.
+          </li>
+          <li>
+            Delivery is available across Auckland. Delivery fees depend on your area and are
+            shown at checkout; orders of 60+ dumplings are delivered free.
+          </li>
+          <li>
+            We&apos;ll confirm your pickup or delivery time by phone after you order. Please
+            be available at the agreed time so your dumplings are as fresh as possible.
           </li>
         </ul>
       </LegalSection>

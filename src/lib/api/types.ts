@@ -8,18 +8,64 @@ export interface CartLine {
   quantity: number;
 }
 
-/** Body of POST /api/orders. Customer email + price-free cart lines + chosen flavour.
- *  `flavour` is order metadata (it never affects price — see §12). */
+/**
+ * Fulfilment method. Sent as the numeric value (the API binds enums by integer, like OrderStatus).
+ * Pickup = collect from the Epsom kitchen (free); Delivery = to the customer's address (zone fee).
+ */
+export type FulfilmentMethod = "Pickup" | "Delivery";
+
+export const FULFILMENT_VALUE: Record<FulfilmentMethod, number> = {
+  Pickup: 0,
+  Delivery: 1,
+};
+
+/** Auckland delivery area. Sent as the numeric value. Mirrors the backend DeliveryZone enum. */
+export type DeliveryZone = "EastSouth" | "AucklandCentral" | "WestNorth";
+
+export const DELIVERY_ZONE_VALUE: Record<DeliveryZone, number> = {
+  EastSouth: 1,
+  AucklandCentral: 2,
+  WestNorth: 3,
+};
+
+export const DELIVERY_ZONE_LABEL: Record<DeliveryZone, string> = {
+  EastSouth: "East & South Auckland",
+  AucklandCentral: "Auckland Central",
+  WestNorth: "West & North Auckland",
+};
+
+/** Display-only base fee per zone (in dollars). The server is authoritative — see {@link estimateDeliveryFee}. */
+export const DELIVERY_ZONE_FEE: Record<DeliveryZone, number> = {
+  EastSouth: 2,
+  AucklandCentral: 4,
+  WestNorth: 8,
+};
+
+/** Body of POST /api/orders. Price-free cart lines + contact + fulfilment metadata.
+ *  No price/amount/total/fee is ever sent — the server computes the total AND delivery fee (§12). */
 export interface CreateOrderRequest {
   customerEmail: string;
   items: CartLine[];
   flavour?: string;
+  customerName?: string;
+  customerPhone?: string;
+  /** Numeric FulfilmentMethod value (see FULFILMENT_VALUE). */
+  method?: number;
+  /** Numeric DeliveryZone value (see DELIVERY_ZONE_VALUE); omitted for pickup. */
+  zone?: number;
+  deliveryAddress?: string;
+  deliveryPostcode?: string;
+  deliveryNotes?: string;
+  preferredDay?: string;
+  preferredTime?: string;
 }
 
-/** Response of POST /api/orders. */
+/** Response of POST /api/orders. Includes the server-computed fee + grand total. */
 export interface CreateOrderResponse {
   orderId: number;
   clientSecret: string;
+  deliveryFee: number;
+  total: number;
 }
 
 /** Body of POST /api/auth/register. */
@@ -83,6 +129,18 @@ export interface OrderSummary {
   total: number;
   items: OrderLineSummary[];
   flavour: string | null;
+  /** "Pickup" | "Delivery" (string form of the backend enum). */
+  method: string;
+  /** Zone name (e.g. "AucklandCentral") for delivery orders; null for pickup. */
+  zone: string | null;
+  deliveryFee: number;
+  customerName: string | null;
+  customerPhone: string | null;
+  deliveryAddress: string | null;
+  deliveryPostcode: string | null;
+  deliveryNotes: string | null;
+  preferredDay: string | null;
+  preferredTime: string | null;
 }
 
 export interface OrderStatusAudit {

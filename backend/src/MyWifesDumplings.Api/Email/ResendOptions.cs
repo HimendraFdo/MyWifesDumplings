@@ -23,6 +23,12 @@ public sealed class ResendOptions
     /// </summary>
     public string LookupBaseUrl { get; set; } = "https://mywifesdumplings.co.nz/order/lookup";
 
+    /// <summary>Pickup address shown to customers who chose pickup (the kitchen).</summary>
+    public string PickupAddress { get; set; } = "70 Great South Road, Epsom, Auckland";
+
+    /// <summary>Business contact phone shown in confirmation emails.</summary>
+    public string BusinessPhone { get; set; } = "022 078 5540";
+
     /// <summary>True only when the API key needed to call Resend is present.</summary>
     public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
 }

@@ -23,7 +23,8 @@ export default function CancellationsPage() {
         <p>
           If you cancel <strong>before we begin preparing</strong> your order, we&apos;ll
           give you a full refund. As a guide, this means contacting us by the evening before
-          your pickup day. The sooner you reach us, the easier it is to stop preparation.
+          your pickup or delivery day. The sooner you reach us, the easier it is to stop
+          preparation.
         </p>
       </LegalSection>
 
@@ -37,7 +38,7 @@ export default function CancellationsPage() {
 
       <LegalSection heading="Changing your order">
         <p>
-          Want to change quantities, flavour, or pickup details? Message us as early as
+          Want to change quantities, flavour, or pickup/delivery details? Message us as early as
           possible and we&apos;ll update your order if we can before preparation starts.
         </p>
       </LegalSection>

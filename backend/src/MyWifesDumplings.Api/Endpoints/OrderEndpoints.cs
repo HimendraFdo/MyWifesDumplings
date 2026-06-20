@@ -38,7 +38,7 @@ public static class OrderEndpoints
                   ?? principal.FindFirstValue(ClaimTypes.NameIdentifier)
                 : null;
 
-            // Server-side pricing + snapshots. Unknown ids / bad quantities => 400.
+            // Server-side pricing + snapshots + delivery fee. Unknown ids / bad quantities => 400.
             var build = await orderBuilder.BuildAsync(request, userId, ct);
             if (!build.Succeeded)
             {
@@ -65,7 +65,10 @@ public static class OrderEndpoints
                 await db.SaveChangesAsync(ct);
 
                 // Order remains UNPAID (PaidAt == null). Payment is confirmed only by the webhook (WP-5).
-                return Results.Ok(new CreateOrderResponse(order.Id, intent.ClientSecret));
+                // Return the server-computed fee + grand total so the payment step shows the real charge.
+                var total = build.AmountMinorUnits / 100m;
+                return Results.Ok(new CreateOrderResponse(
+                    order.Id, intent.ClientSecret, order.DeliveryFee, total));
             }
             catch (Exception)
             {
