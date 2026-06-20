@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { LEGAL } from "@/lib/legal";
 
 interface FooterProps {
   instagramUrl?: string;
 }
 
-const CONTACT_EMAIL = "mywifesdumplingsofficial@gmail.com";
+const CONTACT_EMAIL = LEGAL.contactEmail;
 
 export function Footer({ instagramUrl }: FooterProps) {
   return (
@@ -13,7 +14,11 @@ export function Footer({ instagramUrl }: FooterProps) {
         <p className="font-display text-2xl italic">My Wife&apos;s Dumplings</p>
 
         <p className="font-body text-sm text-brand-cream/60">
-          Handmade with love. Auckland, NZ.
+          Handmade with love. Pickup &amp; delivery across Auckland, NZ.
+        </p>
+
+        <p className="font-body text-sm text-brand-cream/60">
+          {LEGAL.pickupAddress}
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-body text-sm">
@@ -22,6 +27,12 @@ export function Footer({ instagramUrl }: FooterProps) {
             className="text-brand-cream/70 hover:text-brand-cream transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink"
           >
             {CONTACT_EMAIL}
+          </a>
+          <a
+            href={`tel:${LEGAL.phone.replace(/\s/g, "")}`}
+            className="text-brand-cream/70 hover:text-brand-cream transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream focus-visible:ring-offset-2 focus-visible:ring-offset-brand-ink"
+          >
+            {LEGAL.phone}
           </a>
           {instagramUrl && (
             <Link

@@ -25,7 +25,7 @@ export default function RefundsPage() {
       <LegalSection heading="If something is wrong with your order">
         <p>
           If your order is faulty, incorrect, or not of acceptable quality, please contact
-          us as soon as possible — ideally on the day of pickup — with your order number and
+          us as soon as possible — ideally on the day of pickup or delivery — with your order number and
           a photo if you can. We will offer a repair, replacement, or refund as appropriate.
         </p>
       </LegalSection>
@@ -33,7 +33,7 @@ export default function RefundsPage() {
       <LegalSection heading="When we offer a refund">
         <ul className="list-disc space-y-1 pl-5">
           <li>We made a mistake with your order (wrong items or missing items).</li>
-          <li>The food was not of acceptable quality when you collected it.</li>
+          <li>The food was not of acceptable quality when you received it.</li>
           <li>We had to cancel your order and couldn&apos;t fulfil it.</li>
         </ul>
       </LegalSection>
@@ -48,8 +48,8 @@ export default function RefundsPage() {
             ).
           </li>
           <li>
-            The order wasn&apos;t collected at the agreed pickup time, or wasn&apos;t stored
-            or cooked as advised after pickup.
+            The order wasn&apos;t collected or wasn&apos;t able to be delivered at the agreed
+            time, or wasn&apos;t stored or cooked as advised after pickup or delivery.
           </li>
         </ul>
       </LegalSection>

@@ -24,8 +24,15 @@ export default function PrivacyPage() {
       <LegalSection heading="Information we collect">
         <p>We only collect what we need to take and fulfil your order:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Your name and contact details (email, and Instagram handle if you message us).</li>
-          <li>Your order details and any pickup arrangements we agree with you.</li>
+          <li>
+            Your name and contact details (email, phone number, and Instagram handle if you
+            message us).
+          </li>
+          <li>
+            For delivery orders, your delivery address and post code, used only to deliver
+            your order.
+          </li>
+          <li>Your order details and any pickup or delivery arrangements we agree with you.</li>
           <li>
             Communications you send us through our contact form, email, or social media.
           </li>
@@ -39,7 +46,7 @@ export default function PrivacyPage() {
 
       <LegalSection heading="How we use your information">
         <ul className="list-disc space-y-1 pl-5">
-          <li>To prepare your order and arrange pickup.</li>
+          <li>To prepare your order and arrange pickup or delivery.</li>
           <li>To send you an order confirmation and updates about your order.</li>
           <li>To reply to your enquiries.</li>
           <li>To keep basic records of orders for our own accounting.</li>
