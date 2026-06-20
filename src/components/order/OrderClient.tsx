@@ -16,6 +16,7 @@ import {
 } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/field";
+import { LEGAL } from "@/lib/legal";
 import { PaymentForm } from "./PaymentForm";
 
 type Step = "cart" | "payment" | "confirmed";
@@ -111,6 +112,37 @@ export function OrderClient({
           Payment is confirmed by our system once Stripe notifies us — this can take a
           moment.
         </p>
+
+        {/* Pickup + contact instructions so the customer knows exactly what happens next. */}
+        <div className="mt-6 rounded-lg border-2 border-brand-ink/10 bg-brand-cream/60 p-5 text-left">
+          <h3 className="font-display text-lg text-brand-ink">Pickup &amp; what happens next</h3>
+          <ul className="mt-3 space-y-2 font-body text-sm text-brand-ink/70">
+            <li>
+              <span className="font-semibold text-brand-ink">1.</span> We&apos;ll email{" "}
+              <span className="font-semibold">{email}</span> a confirmation and receipt.
+            </li>
+            <li>
+              <span className="font-semibold text-brand-ink">2.</span> We&apos;ll message you
+              to arrange a <span className="font-semibold">pickup time and place in {""}
+              {LEGAL.location}</span>. Orders are pickup only — there&apos;s no delivery.
+            </li>
+            <li>
+              <span className="font-semibold text-brand-ink">3.</span> Please collect your
+              dumplings at the agreed time so they&apos;re as fresh as possible.
+            </li>
+          </ul>
+          <p className="mt-4 font-body text-sm text-brand-ink/70">
+            Questions, or need to change your order? Email us at{" "}
+            <a
+              href={`mailto:${LEGAL.contactEmail}`}
+              className="font-semibold text-brand-red underline-offset-4 hover:underline"
+            >
+              {LEGAL.contactEmail}
+            </a>{" "}
+            with your order number.
+          </p>
+        </div>
+
         {session && (
           <Link
             href="/account/orders"
@@ -158,6 +190,13 @@ export function OrderClient({
   // --- Cart step ---
   return (
     <form onSubmit={handleCreateOrder} className="mx-auto max-w-2xl space-y-10">
+      {/* Pickup heads-up so expectations are set before payment. */}
+      <div className="rounded-lg border-2 border-brand-red/20 bg-brand-red/5 px-4 py-3 font-body text-sm text-brand-ink/70">
+        <span className="font-semibold text-brand-ink">Pickup only.</span> Everything is
+        handmade fresh to order ({LEGAL.leadTime}). After you pay, we&apos;ll message you to
+        arrange a pickup time and place in {LEGAL.location}.
+      </div>
+
       {/* Tiers */}
       <section>
         <h2 className="mb-4 font-display text-2xl text-brand-ink">1. Pick your pack</h2>

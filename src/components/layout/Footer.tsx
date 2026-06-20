@@ -37,6 +37,36 @@ export function Footer({ instagramUrl }: FooterProps) {
 
         <div className="w-full max-w-xs border-t border-brand-cream/10" />
 
+        <nav
+          aria-label="Policies"
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-body text-xs"
+        >
+          <Link
+            href="/privacy"
+            className="text-brand-cream/60 hover:text-brand-cream transition-colors duration-200"
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/terms"
+            className="text-brand-cream/60 hover:text-brand-cream transition-colors duration-200"
+          >
+            Terms
+          </Link>
+          <Link
+            href="/refunds"
+            className="text-brand-cream/60 hover:text-brand-cream transition-colors duration-200"
+          >
+            Refunds
+          </Link>
+          <Link
+            href="/cancellations"
+            className="text-brand-cream/60 hover:text-brand-cream transition-colors duration-200"
+          >
+            Cancellations
+          </Link>
+        </nav>
+
         <p className="font-body text-xs text-brand-cream/40">
           © {new Date().getFullYear()} My Wife&apos;s Dumplings. All rights reserved.
         </p>
