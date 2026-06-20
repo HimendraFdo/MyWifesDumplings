@@ -3,7 +3,7 @@ import type { SanityImageSource } from "@sanity/image-url";
 import { urlFor } from "@/lib/sanity/image";
 import { OrderButton } from "@/components/brand/OrderButton";
 import { StampBadge } from "@/components/brand/StampBadge";
-import { ChiveSprig } from "@/components/brand/Decorations";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 
 interface HeroSectionProps {
   heading: string;
@@ -38,19 +38,8 @@ export function HeroSection({
       {/* Cream tint overlay */}
       <div className="absolute inset-0 bg-brand-cream/88 z-10" />
 
-      {/* Decorative chive sprigs — matching the poster border */}
-      <div className="absolute left-0 bottom-0 z-10 pointer-events-none hidden sm:block">
-        <ChiveSprig className="w-16 h-48 opacity-70" />
-      </div>
-      <div className="absolute left-6 bottom-12 z-10 pointer-events-none hidden md:block">
-        <ChiveSprig className="w-10 h-32 opacity-40" />
-      </div>
-      <div className="absolute right-0 bottom-0 z-10 pointer-events-none hidden sm:block">
-        <ChiveSprig className="w-16 h-48 opacity-70 scale-x-[-1]" />
-      </div>
-      <div className="absolute right-6 bottom-12 z-10 pointer-events-none hidden md:block">
-        <ChiveSprig className="w-10 h-32 opacity-40 scale-x-[-1]" />
-      </div>
+      {/* Dynamic scatter — menu cut-out art flung across the whole hero */}
+      <DynamicScatter variant="hero" />
 
       {/* Wobbly decorative border frame */}
       <div

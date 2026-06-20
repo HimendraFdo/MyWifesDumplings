@@ -2,7 +2,7 @@ import { PortableText } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
 import { SectionHeading } from "@/components/brand/SectionHeading";
 import { RedDivider } from "@/components/brand/RedDivider";
-import { CabbageHead, ChiveSprig } from "@/components/brand/Decorations";
+import { DynamicScatter } from "@/components/brand/DynamicScatter";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 interface AboutSectionProps {
@@ -22,15 +22,10 @@ const portableTextComponents = {
 export function AboutSection({ aboutText }: AboutSectionProps) {
   return (
     <section id="about" className="relative py-16 sm:py-20 px-4 overflow-x-clip">
-      {/* Decorative elements — flanking the section like the poster border */}
-      <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none hidden xl:block">
-        <ChiveSprig className="w-10 h-36 opacity-30" />
-      </div>
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none hidden xl:block">
-        <CabbageHead className="w-14 h-14 opacity-25" />
-      </div>
+      {/* Dynamic scatter — art sprinkled around the story, not just the margins */}
+      <DynamicScatter variant="about" />
 
-      <div className="max-w-2xl mx-auto">
+      <div className="relative z-10 max-w-2xl mx-auto">
         <ScrollReveal>
           <SectionHeading>Our Story</SectionHeading>
         </ScrollReveal>
