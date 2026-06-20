@@ -27,9 +27,16 @@ export function MenuCard({ item, className }: MenuCardProps) {
       {item.image && (
         <div className="relative w-full aspect-square overflow-hidden rounded mb-4">
           <Image
-            src={urlFor(item.image).width(400).height(400).url()}
+            src={urlFor(item.image)
+              .width(800)
+              .height(800)
+              .fit("crop")
+              .auto("format")
+              .quality(90)
+              .url()}
             alt={item.name}
             fill
+            quality={90}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 400px"
           />

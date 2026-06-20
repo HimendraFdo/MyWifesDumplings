@@ -38,10 +38,15 @@ export function GallerySection({ images }: GallerySectionProps) {
                 [border-radius:4px_12px_6px_10px/10px_6px_12px_4px]"
             >
               <Image
-                src={urlFor(img.image).width(600).url()}
+                src={urlFor(img.image)
+                  .width(900)
+                  .auto("format")
+                  .quality(88)
+                  .url()}
                 alt={img.alt}
-                width={600}
-                height={400}
+                width={900}
+                height={600}
+                quality={90}
                 className="w-full h-auto object-cover"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
               />
