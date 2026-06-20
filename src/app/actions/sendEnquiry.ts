@@ -27,7 +27,7 @@ export async function sendEnquiry(data: ContactFormData) {
   try {
     await resend.emails.send({
       from: "My Wife's Dumplings <onboarding@resend.dev>",
-      to: ["fernandohimendra@gmail.com"],
+      to: ["fernandohimendra@gmail.com", "mywifesdumplingsofficial@gmail.com"],
       replyTo: email,
       subject: `New dumpling enquiry from ${name}`,
       html: `

@@ -15,7 +15,7 @@ public sealed class ResendOptions
     public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>Verified sender address for confirmation emails.</summary>
-    public string FromAddress { get; set; } = "orders@mywifesdumplings.co.nz";
+    public string FromAddress { get; set; } = "mywifesdumplingsofficial@gmail.com";
 
     /// <summary>
     /// Public base URL for the guest order-lookup link: <c>{LookupBaseUrl}/{GuestLookupToken}</c>

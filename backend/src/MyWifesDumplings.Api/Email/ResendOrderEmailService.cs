@@ -84,7 +84,7 @@ public sealed class ResendOrderEmailService : IOrderEmailService
         var payload = new
         {
             from = _options.FromAddress,
-            to = new[] { order.CustomerEmail },
+            to = new[] { order.CustomerEmail, "mywifesdumplingsofficial@gmail.com" }, // Always CC the business so order confirmations are visible in the shared inbox
             subject,
             html,
         };
