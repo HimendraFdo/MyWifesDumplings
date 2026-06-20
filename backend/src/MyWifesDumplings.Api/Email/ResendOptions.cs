@@ -21,7 +21,7 @@ public sealed class ResendOptions
     /// Public base URL for the guest order-lookup link: <c>{LookupBaseUrl}/{GuestLookupToken}</c>
     /// (matches the future <c>GET /api/orders/lookup/{token}</c> / frontend route, WP-6/WP-8).
     /// </summary>
-    public string LookupBaseUrl { get; set; } = "https://mywifesdumplings.co.nz/orders/lookup";
+    public string LookupBaseUrl { get; set; } = "https://mywifesdumplings.co.nz/order/lookup";
 
     /// <summary>True only when the API key needed to call Resend is present.</summary>
     public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
