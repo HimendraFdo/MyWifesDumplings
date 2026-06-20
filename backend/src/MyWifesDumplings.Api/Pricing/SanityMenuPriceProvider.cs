@@ -37,7 +37,7 @@ public sealed class SanityMenuPriceProvider : IMenuPriceProvider
         // human-readable label derived from its quantity (e.g. "60 dumplings") — this is
         // what gets snapshotted onto the OrderItem and shown in order history (spec §6).
         const string groq =
-            "*[_id == $id][0]{\"name\": coalesce(title, name, string(quantity) + \" dumplings\"), \"price\": price}";
+            "*[_id == $id][0]{\"name\": coalesce(title, name, string(quantity) + \" dumplings\"), \"price\": price, \"dumplings\": quantity}";
 
         var url =
             $"https://{_options.ProjectId}.api.sanity.io/v{_options.ApiVersion}/data/query/{_options.Dataset}" +
@@ -77,6 +77,14 @@ public sealed class SanityMenuPriceProvider : IMenuPriceProvider
             ? nameEl.GetString()!
             : menuItemId;
 
-        return new MenuItemPrice(name, price);
+        // Pieces are only present on pricing-tier docs (their `quantity`); absent/non-numeric for
+        // sauces, soups, etc. Used solely for the 60+ free-delivery rule — never for pricing.
+        int? dumplings = result.TryGetProperty("dumplings", out var qtyEl)
+            && qtyEl.ValueKind == JsonValueKind.Number
+            && qtyEl.TryGetInt32(out var qty)
+            ? qty
+            : null;
+
+        return new MenuItemPrice(name, price, dumplings);
     }
 }
