@@ -106,6 +106,7 @@ public sealed class StripeWebhookService
         }
 
         var order = await _db.Orders
+            .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(o => o.StripePaymentIntentId == intent.Id, ct);
 
         if (order is null)
