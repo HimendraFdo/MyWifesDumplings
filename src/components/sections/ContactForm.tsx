@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { contactSchema, ContactFormData } from "@/lib/validations";
 import { sendEnquiry } from "@/app/actions/sendEnquiry";
+import { PigDeco } from "@/components/brand/Decorations";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -55,14 +56,15 @@ export function ContactForm() {
         transition={{ duration: 0.5, ease: [0.175, 0.885, 0.32, 1.275] }}
         className="text-center py-12 space-y-3"
       >
-        <motion.p
+        <motion.div
           initial={{ scale: 1.3, rotate: -6 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: [0.175, 0.885, 0.32, 1.275] }}
-          className="font-display text-3xl italic text-brand-ink"
+          className="flex flex-col items-center gap-2"
         >
-          Thank you! 🥟
-        </motion.p>
+          <PigDeco className="w-14 h-10" />
+          <p className="font-display text-3xl italic text-brand-ink">Thank you!</p>
+        </motion.div>
         <p className="font-body text-brand-ink/70">We&apos;ll be in touch shortly.</p>
         <button
           onClick={() => setStatus("idle")}
