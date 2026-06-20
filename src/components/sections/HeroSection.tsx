@@ -3,7 +3,6 @@ import type { SanityImageSource } from "@sanity/image-url";
 import { urlFor } from "@/lib/sanity/image";
 import { OrderButton } from "@/components/brand/OrderButton";
 import { StampBadge } from "@/components/brand/StampBadge";
-import { PigLogo } from "@/components/brand/PigLogo";
 import { ChiveSprig } from "@/components/brand/Decorations";
 
 interface HeroSectionProps {
@@ -70,12 +69,19 @@ export function HeroSection({
           <StampBadge>Handmade in Auckland, NZ</StampBadge>
         </div>
 
-        {/* Pig logo — the Chinese papercut circular stamp */}
+        {/* Brand logo — full pig, white background blended into the cream page via multiply */}
         <div className="flex justify-center animate-fade-up" style={{ animationDelay: "0.1s" }}>
-          <PigLogo
-            size={100}
-            className="drop-shadow-md hover:rotate-3 transition-transform duration-300 sm:w-28 sm:h-28"
-          />
+          <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full border-2 border-brand-red bg-brand-cream shadow-md hover:rotate-3 transition-transform duration-300 sm:h-28 sm:w-28">
+            <Image
+              src="/images/Logo.png"
+              alt="My Wife's Dumplings logo"
+              fill
+              priority
+              quality={95}
+              sizes="240px"
+              className="object-contain scale-[2] -translate-y-2 mix-blend-multiply"
+            />
+          </div>
         </div>
 
         <h1
