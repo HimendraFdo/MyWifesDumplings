@@ -180,10 +180,18 @@ public sealed class ResendOrderEmailService : IOrderEmailService
              </html>
              """;
 
+        // Normally: email the customer and CC the business shared inbox.
+        // TEST-ONLY override: on Resend's sandbox sender we can only deliver to the account owner,
+        // so when SandboxTestRecipient is set every confirmation is redirected there. Clearing it
+        // (after a domain is verified and FromAddress uses it) restores the real recipients.
+        var recipients = string.IsNullOrWhiteSpace(_options.SandboxTestRecipient)
+            ? new[] { order.CustomerEmail, "mywifesdumplingsofficial@gmail.com" }
+            : new[] { _options.SandboxTestRecipient };
+
         var payload = new
         {
             from = _options.FromAddress,
-            to = new[] { order.CustomerEmail, "mywifesdumplingsofficial@gmail.com" }, // Always CC the business so order confirmations are visible in the shared inbox
+            to = recipients,
             subject,
             html,
         };

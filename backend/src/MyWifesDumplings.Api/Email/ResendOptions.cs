@@ -29,6 +29,15 @@ public sealed class ResendOptions
     /// <summary>Business contact phone shown in confirmation emails.</summary>
     public string BusinessPhone { get; set; } = "022 078 5540";
 
+    /// <summary>
+    /// TEST-ONLY (interim): while sending from Resend's sandbox sender (onboarding@resend.dev), Resend
+    /// only delivers to the Resend account owner's own address. When this is non-empty, every confirmation
+    /// is redirected to this single address and the real customer/business recipients are ignored, so test
+    /// orders actually land in an inbox. Leave EMPTY in production — once a domain is verified at
+    /// resend.com/domains and <see cref="FromAddress"/> uses it, clearing this restores normal recipients.
+    /// </summary>
+    public string SandboxTestRecipient { get; set; } = string.Empty;
+
     /// <summary>True only when the API key needed to call Resend is present.</summary>
     public bool IsConfigured => !string.IsNullOrWhiteSpace(ApiKey);
 }

@@ -5,6 +5,13 @@ import { contactSchema, ContactFormData } from "@/lib/validations";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// TEST-ONLY (interim): while sending from Resend's sandbox sender (onboarding@resend.dev), Resend only
+// delivers to the Resend account owner's own address. When RESEND_SANDBOX_TEST_RECIPIENT is set, every
+// enquiry email is redirected to that single address so test submissions actually land in an inbox.
+// Leave this env var UNSET in production — once a domain is verified at resend.com/domains and the `from`
+// address uses it, the real recipients are used automatically.
+const SANDBOX_TEST_RECIPIENT = process.env.RESEND_SANDBOX_TEST_RECIPIENT;
+
 const FLAVOUR_LABELS: Record<string, string> = {
   pork_chives: "Pork & Chives",
   pork_cabbage: "Pork & Cabbage",
@@ -27,7 +34,9 @@ export async function sendEnquiry(data: ContactFormData) {
   try {
     await resend.emails.send({
       from: "My Wife's Dumplings <onboarding@resend.dev>",
-      to: ["fernandohimendra@gmail.com", "mywifesdumplingsofficial@gmail.com"],
+      to: SANDBOX_TEST_RECIPIENT
+        ? [SANDBOX_TEST_RECIPIENT]
+        : ["fernandohimendra@gmail.com", "mywifesdumplingsofficial@gmail.com"],
       replyTo: email,
       subject: `New dumpling enquiry from ${name}`,
       html: `
@@ -50,7 +59,7 @@ export async function sendEnquiry(data: ContactFormData) {
 
     await resend.emails.send({
       from: "My Wife's Dumplings <onboarding@resend.dev>",
-      to: [email],
+      to: SANDBOX_TEST_RECIPIENT ? [SANDBOX_TEST_RECIPIENT] : [email],
       subject: "We got your enquiry! 🥟",
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #F5E6D3;">
