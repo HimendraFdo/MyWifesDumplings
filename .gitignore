@@ -48,3 +48,7 @@ next-env.d.ts
 # python bytecode (agent/skill scripts)
 __pycache__/
 *.pyc
+
+# dotnet build/deploy artifacts
+backend/src/MyWifesDumplings.Api/deploy.zip
+backend/src/MyWifesDumplings.Api/publish/
